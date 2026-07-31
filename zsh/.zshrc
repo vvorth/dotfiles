@@ -55,7 +55,10 @@ WHITE_BG="$bg[white]"
 NC="$reset_color"
 
 
-# PS1="${RED_BOLD}[%n@%m %1~]%#${NC} "
-# PS1="${RED_BG}${BLACK_BOLD}[%n@%m %1~]%#${NC} "
-PS1="%F{red}[%n@%m %1~]%# %f"
+# Default PS1
+PS1="[%n@%m %1~]%# "
+
+
+# Attempt to load local zshrc
+[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
 
