@@ -41,5 +41,5 @@ PURPLE_BG='\[\e[45m\]'     # Purple Background
 CYAN_BG='\[\e[46m\]'       # Cyan Background
 WHITE_BG='\[\e[47m\]'      # White Background
 
-PS1="${BLACK}${CYAN_BG}[\u@\h \W]\$${NC} "
+PS1="[\u@\h \W]\$ "
 #PS1="${CYAN_BOLD}[\u@\h \W]${NC}\$ "
