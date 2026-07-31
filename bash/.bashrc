@@ -43,3 +43,7 @@ WHITE_BG='\[\e[47m\]'      # White Background
 
 PS1="[\u@\h \W]\$ "
 #PS1="${CYAN_BOLD}[\u@\h \W]${NC}\$ "
+
+#load local config if exist
+[[ -f ~/.bashrc.local ]] && . ~/.bashrc.local
+
