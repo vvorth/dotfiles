@@ -46,4 +46,5 @@ PS1="[\u@\h \W]\$ "
 
 #load local config if exist
 [[ -f ~/.bashrc.local ]] && . ~/.bashrc.local
+[[ -f ~/.aliases.local ]] && . ~/.aliases.local
 
