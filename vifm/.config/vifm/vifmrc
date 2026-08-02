@@ -633,5 +633,5 @@ nnoremap <a-o> :sync %c<cr>
 " https://github.com/cirala/vifm_devicons
 
 
-command! Rsync tsp rsync -avP %f %D/ 
+command! Rsync tsp rsync -rlDvP %f %D/ 
 

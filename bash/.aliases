@@ -2,3 +2,6 @@
 
 alias ls='ls --color=auto'
 alias grep='grep --color=auto'
+
+[[ -f ~/.aliases.local ]] && . ~/.aliases.local
+

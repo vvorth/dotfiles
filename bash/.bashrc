@@ -5,8 +5,18 @@
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
 
-EDITOR=nvim
-VISUAL=nvim
+
+
+
+# --- modular per-package config ---
+_bash_confd="${XDG_CONFIG_HOME:-$HOME/.config}/bash/conf.d"
+if [ -d "$_bash_confd" ]; then
+  for f in "$_bash_confd"/*.sh; do
+    [ -r "$f" ] && source "$f"
+  done
+fi
+unset _bash_confd
+
 
 # Color Reset
 NC='\[\e[0m\]'             # No Color / Reset
@@ -44,7 +54,8 @@ WHITE_BG='\[\e[47m\]'      # White Background
 PS1="[\u@\h \W]\$ "
 #PS1="${CYAN_BOLD}[\u@\h \W]${NC}\$ "
 
+
 #load local config if exist
 [[ -f ~/.bashrc.local ]] && . ~/.bashrc.local
-[[ -f ~/.aliases.local ]] && . ~/.aliases.local
+[[ -f ~/.aliases ]] && . ~/.aliases
 
