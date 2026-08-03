@@ -1,6 +1,30 @@
 
 -- Enable 24-bit color (Required for modern plugins like Noice to look good)
-vim.opt.termguicolors = true
+local function supports_truecolor()
+  if vim.env.COLORTERM == "truecolor" or vim.env.COLORTERM == "24bit" then
+    return true
+  end
+
+  if vim.env.TMUX then
+    local ok, client_term = pcall(vim.fn.system, "tmux display-message -p '#{client_termname}'")
+    if ok then
+      client_term = vim.trim(client_term)
+      if client_term == "linux" then return false end
+      if client_term ~= "" then return true end
+    end
+  end
+
+  -- bare console, or screen with `term screen.$TERM` in .screenrc
+  if vim.env.TERM == "linux" or vim.env.TERM == "linux-basic" or vim.env.TERM:match("screen%.linux") then
+    return false
+  end
+
+  return true
+end
+
+vim.opt.termguicolors = supports_truecolor()
+
+-- vim.opt.termguicolors = true
 vim.opt.guicursor = "n-v-c-i:block"
 
 vim.opt.expandtab = true   -- Convert tabs to spaces
