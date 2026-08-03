@@ -1,5 +1,23 @@
 [[ -f ~/.aliases ]] && source ~/.aliases
-[[ -f ~/.aliases_nvim ]] && source ~/.aliases_nvim
+
+bindkey -e
+
+# Define where history is stored
+export HISTFILE=~/.zsh_history
+#
+# Increase memory and file storage limits (Defaults are often too low)
+export HISTSIZE=50000
+export SAVEHIST=50000
+
+# Save timestamps to the history file
+setopt EXTENDED_HISTORY
+
+# Share history across all active terminal windows immediately
+setopt SHARE_HISTORY
+
+# Skip saving duplicate consecutive commands
+setopt HIST_IGNORE_DUPS
+
 
 # Added by LM Studio CLI (lms)
 export PATH="$PATH:/Users/vvorth/.lmstudio/bin"

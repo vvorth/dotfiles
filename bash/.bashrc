@@ -5,7 +5,14 @@
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
 
+# Append to the history file immediately, do not overwrite it
+shopt -s histappend
 
+# Add timestamps to history (YYYY-MM-DD HH:MM:SS)
+export HISTTIMEFORMAT="%F %T "
+
+# Save current command and fetch new ones from other terminals on every prompt
+PROMPT_COMMAND="history -a; history -n; $PROMPT_COMMAND"
 
 
 # --- modular per-package config ---
