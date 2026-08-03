@@ -17,10 +17,19 @@ return {
       },
     },
     presets = {
-      bottom_search = true,         -- classic bottom cmdline for search (/ and ?)
+      -- bottom_search = true,         -- classic bottom cmdline for search (/ and ?)
       command_palette = true,       -- position cmdline + popupmenu centrally, together
       long_message_to_split = true, -- long messages go to a split, not a wall of text
       lsp_doc_border = true,        -- border around LSP hover docs
+    },
+    views = {
+      -- shrink the shared "notify" view's footprint (passed through to nvim-notify)
+      notify = {
+        timeout = 3000,
+        -- max_width = 40,
+        -- max_height = 6,
+        render = "compact",  -- nvim-notify render styles: default | minimal | simple | compact | wrapped-compact
+      },
     },
   },
 }
