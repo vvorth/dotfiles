@@ -14,6 +14,8 @@ export HISTTIMEFORMAT="%F %T "
 # Save current command and fetch new ones from other terminals on every prompt
 PROMPT_COMMAND="history -a; history -n; $PROMPT_COMMAND"
 
+CNF=/usr/share/doc/pkgfile/command-not-found.bash
+[[ -f $CNF ]] && source $CNF || true
 
 # --- modular per-package config ---
 _bash_confd="${XDG_CONFIG_HOME:-$HOME/.config}/bash/conf.d"
