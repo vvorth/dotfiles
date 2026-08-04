@@ -6,6 +6,7 @@ local wk = require("which-key")
 wk.add({
   { "<leader>f", group = "File", icon = { icon = "󰈞 " } },
   { "<leader>b", group = "Buffer", icon = { icon = "󰓩 " } },
+  { "<leader>c", group = "Code" },
   { "<leader>w", group = "Window", icon = { icon = "󰉐 " } },
   { "<leader>q", group = "Quit/Session", icon = { icon = "󰗼 " } },
   { "<leader>e", desc = "Toggle File Explorer", icon = { icon = "󰙅 " } },
