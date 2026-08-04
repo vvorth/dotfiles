@@ -1,5 +1,10 @@
 # Manual Neovim Setup — LazyVim Features, Built by Hand
 
+> Point-in-time build journal, not living documentation — sections may
+> drift from the actual config in `nvim/` as it evolves (e.g. the
+> `wilder.nvim` alternative below was later dropped in favor of native
+> `wildmenu`).
+
 Goal: keep your existing `vimrc`-derived config as the base, layer in a plugin manager,
 and manually wire up the specific LazyVim-like features you asked for:
 

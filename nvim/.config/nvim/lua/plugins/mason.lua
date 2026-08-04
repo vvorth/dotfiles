@@ -14,13 +14,12 @@ return {
     opts = {
       ensure_installed = {
         -- formatters
-        "stylua",     -- Lua — for the config files you've been writing all guide
-        "shfmt",      -- bash/shell — relevant given your sysadmin workflow
-        "prettier",   -- JS/TS/JSON/YAML/HTML/CSS/Markdown, the broad web-stack catch-all
-        "ruff",       -- Python — includes ruff's formatter; swap for "black" if you
-                      -- need to match an existing project's convention instead
-        "taplo",      -- toml
-        -- feel free to also list LSP servers / linters here later — this plugin
+        "stylua",     -- Lua
+        "shfmt",      -- bash/shell
+        "prettier",   -- JS/TS/JSON/YAML/HTML/CSS/Markdown
+        "ruff",       -- Python (swap for "black" to match a project's convention)
+        "taplo",      -- TOML
+        -- LSP servers / linters can also go in this list — this plugin
         -- installs anything Mason knows about, not just formatters
       },
       auto_update = false,   -- set true if you want it to also keep tools up to date on startup

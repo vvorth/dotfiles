@@ -24,7 +24,6 @@ end
 
 vim.opt.termguicolors = supports_truecolor()
 
--- vim.opt.termguicolors = true
 vim.opt.guicursor = "n-v-c-i:block"
 
 vim.opt.expandtab = true   -- Convert tabs to spaces
