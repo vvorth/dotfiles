@@ -31,6 +31,9 @@ return {
         render = "compact",  -- nvim-notify render styles: default | minimal | simple | compact | wrapped-compact
       },
     },
+    routes = {
+      { filter = { cmdline = "^:!" }, view = "split" },
+    },
   },
 }
 

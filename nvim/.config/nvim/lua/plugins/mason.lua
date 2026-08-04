@@ -19,6 +19,7 @@ return {
         "prettier",   -- JS/TS/JSON/YAML/HTML/CSS/Markdown, the broad web-stack catch-all
         "ruff",       -- Python — includes ruff's formatter; swap for "black" if you
                       -- need to match an existing project's convention instead
+        "taplo",      -- toml
         -- feel free to also list LSP servers / linters here later — this plugin
         -- installs anything Mason knows about, not just formatters
       },
