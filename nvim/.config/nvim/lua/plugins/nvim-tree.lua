@@ -5,7 +5,7 @@ return {
   dependencies = { "nvim-tree/nvim-web-devicons" }, -- file icons, needs your Nerd Font
   cmd = { "NvimTreeToggle", "NvimTreeFocus" },
   keys = {
-    { "<leader>e", "<cmd>NvimTreeToggle<cr>", desc = "Toggle File Explorer", icon = { icon = "󰙅 " } },
+    { "<leader>e", "<cmd>NvimTreeToggle<cr>", desc = "Toggle File Explorer" },
   },
   opts = {
     view = {
