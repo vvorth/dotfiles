@@ -9,7 +9,6 @@ wk.add({
   { "<leader>c", group = "Code" },
   { "<leader>w", group = "Window", icon = { icon = "󰉐 " } },
   { "<leader>q", group = "Quit/Session", icon = { icon = "󰗼 " } },
-  { "<leader>e", desc = "Toggle File Explorer", icon = { icon = "󰙅 " } },
   { "<leader>l", "<cmd>Lazy<cr>", desc = "Lazy", icon = { icon = "󰒲 " } },
 
   -- File
