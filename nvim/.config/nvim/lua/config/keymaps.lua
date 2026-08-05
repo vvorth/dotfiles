@@ -2,8 +2,8 @@
 
 local wk = require("which-key")
 
--- register the groups first (this is what gives you the labeled headers)
 wk.add({
+  -- register the groups first (this is what gives you the labeled headers)
   { "<leader>f", group = "File", icon = { icon = "󰈞 " } },
   { "<leader>b", group = "Buffer", icon = { icon = "󰓩 " } },
   { "<leader>c", group = "Code" },
@@ -11,6 +11,9 @@ wk.add({
   { "<leader>q", group = "Quit/Session", icon = { icon = "󰗼 " } },
   { "<leader>e", desc = "Toggle File Explorer", icon = { icon = "󰙅 " } },
   { "<leader>l", "<cmd>Lazy<cr>", desc = "Lazy", icon = { icon = "󰒲 " } },
+
+  -- Code
+  { "<leader>cr", "<cmd>RenderMarkdown toggle<cr>", desc = "Toggle Markdown Render", icon = { icon = " " } },
 
   -- File
   { "<leader>fs", "<cmd>write<cr>", desc = "Save File", icon = { icon = "󰆓 " } },
