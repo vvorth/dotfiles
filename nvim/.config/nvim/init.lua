@@ -4,6 +4,9 @@ vim.g.maplocalleader = " "
 
 vim.cmd("source ~/.vimrc")
 
+vim.env.PATH = vim.fn.stdpath("data") .. "/mason/bin:" .. vim.env.PATH
+
+
 -- Load Lua config
 require("config.lazy")
 require("config.options")
