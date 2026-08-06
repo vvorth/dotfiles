@@ -10,9 +10,15 @@ shopt -s histappend
 
 # Add timestamps to history (YYYY-MM-DD HH:MM:SS)
 export HISTTIMEFORMAT="%F %T "
+# Increase history limits so old commands aren't lost quickly
+export HISTSIZE=10000
+export HISTFILESIZE=20000
 
 # Save current command and fetch new ones from other terminals on every prompt
-PROMPT_COMMAND="history -a; history -n; $PROMPT_COMMAND"
+# PROMPT_COMMAND="history -a; history -n; $PROMPT_COMMAND"
+# Save each command to history immediately and read updates from other sessions
+export PROMPT_COMMAND="history -a; history -c; history -r; $PROMPT_COMMAND"
+
 
 CNF=/usr/share/doc/pkgfile/command-not-found.bash
 [[ -f $CNF ]] && source $CNF || true
