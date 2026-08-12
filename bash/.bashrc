@@ -5,6 +5,7 @@
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
 
+
 # Append to the history file immediately, do not overwrite it
 shopt -s histappend
 
@@ -23,14 +24,6 @@ export PROMPT_COMMAND="history -a; history -c; history -r; $PROMPT_COMMAND"
 CNF=/usr/share/doc/pkgfile/command-not-found.bash
 [[ -f $CNF ]] && source $CNF || true
 
-# --- modular per-package config ---
-_bash_confd="${XDG_CONFIG_HOME:-$HOME/.config}/bash/conf.d"
-if [ -d "$_bash_confd" ]; then
-  for f in "$_bash_confd"/*.sh; do
-    [ -r "$f" ] && source "$f"
-  done
-fi
-unset _bash_confd
 
 
 # Color Reset
@@ -69,8 +62,17 @@ WHITE_BG='\[\e[47m\]'      # White Background
 PS1="[\u@\h \W]\$ "
 #PS1="${CYAN_BOLD}[\u@\h \W]${NC}\$ "
 
+[[ -f ~/.aliases ]] && . ~/.aliases
+
+# --- modular per-package config ---
+_bash_confd="${XDG_CONFIG_HOME:-$HOME/.config}/bash/conf.d"
+if [ -d "$_bash_confd" ]; then
+  for f in "$_bash_confd"/*.sh; do
+    [ -r "$f" ] && source "$f"
+  done
+fi
+unset _bash_confd
 
 #load local config if exist
 [[ -f ~/.bashrc.local ]] && . ~/.bashrc.local
-[[ -f ~/.aliases ]] && . ~/.aliases
 

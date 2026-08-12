@@ -1,4 +1,3 @@
-[[ -f ~/.aliases ]] && source ~/.aliases
 
 plugins=()
 
@@ -81,7 +80,15 @@ NC="$reset_color"
 # Default PS1
 PS1="[%n@%m %1~]%# "
 
+[[ -f ~/.aliases ]] && source ~/.aliases
 
-# Attempt to load local zshrc
+# --- modular per-package config ---
+_zsh_confd="${XDG_CONFIG_HOME:-$HOME/.config}/zsh/conf.d"
+  for f in "$_zsh_confd"/*.zsh(N); do
+    [[ -r "$f"  ]] && source "$f"
+  done
+unset _zsh_confd
+
+# --- machine-local overrides, not tracked in git ---
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
 
