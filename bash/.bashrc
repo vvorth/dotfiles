@@ -64,6 +64,15 @@ PS1="[\u@\h \W]\$ "
 
 [[ -f ~/.aliases ]] && . ~/.aliases
 
+# --- modular per-package generic config ---
+_sh_confd="${XDG_CONFIG_HOME:-$HOME/.config}/sh/conf.d"
+if [ -d "$_sh_confd" ]; then
+  for f in "$_sh_confd"/*.sh; do
+    [ -r "$f" ] && source "$f"
+  done
+fi
+unset _sh_confd
+
 # --- modular per-package config ---
 _bash_confd="${XDG_CONFIG_HOME:-$HOME/.config}/bash/conf.d"
 if [ -d "$_bash_confd" ]; then

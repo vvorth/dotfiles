@@ -82,6 +82,13 @@ PS1="[%n@%m %1~]%# "
 
 [[ -f ~/.aliases ]] && source ~/.aliases
 
+# --- modular per-package generic config ---
+_sh_confd="${XDG_CONFIG_HOME:-$HOME/.config}/sh/conf.d"
+  for f in "$_sh_confd"/*.sh(N); do
+    [[ -r "$f"  ]] && source "$f"
+  done
+unset _sh_confd
+
 # --- modular per-package config ---
 _zsh_confd="${XDG_CONFIG_HOME:-$HOME/.config}/zsh/conf.d"
   for f in "$_zsh_confd"/*.zsh(N); do
