@@ -33,6 +33,9 @@ export PATH="$PATH:/Users/vvorth/.local/bin"
 # Initialize the advanced completion system
 autoload -U compinit && compinit
 
+# Don't strip trailing slashes
+zstyle ':completion:*' squeeze-slashes false
+
 # Enable arrow-key menu selection for completions
 zstyle ':completion:*' menu select
 
