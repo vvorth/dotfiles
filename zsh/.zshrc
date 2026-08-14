@@ -22,6 +22,8 @@ setopt SHARE_HISTORY
 # Skip saving duplicate consecutive commands
 setopt HIST_IGNORE_DUPS
 
+# Don't remove trailing slash from path
+setopt NO_AUTO_REMOVE_SLASH
 
 # Added by LM Studio CLI (lms)
 export PATH="$PATH:/Users/vvorth/.lmstudio/bin"
