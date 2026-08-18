@@ -26,6 +26,16 @@ vim.opt.termguicolors = supports_truecolor()
 
 vim.opt.guicursor = "n-v-c-i:block"
 
+vim.opt.background = "dark"
+vim.cmd.colorscheme("slate")
+
+vim.opt.number = true         -- show line number
+vim.opt.relativenumber = true
+
+vim.opt.mouse = ""            -- disable mouse in all modes
+
+vim.opt.scrolloff = 5         -- keep a few lines of context around the cursor
+
 vim.opt.expandtab = true   -- Convert tabs to spaces
 vim.opt.tabstop = 4        -- Insert 4 spaces for a tab
 vim.opt.shiftwidth = 4     -- Change the number of spaces inserted for indentation
