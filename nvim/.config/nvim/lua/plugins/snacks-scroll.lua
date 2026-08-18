@@ -16,5 +16,12 @@ return {
     quickfile = { enabled = true },
     indent = { enabled = true },
   },
+  keys = {
+    {
+      "<leader>ug",
+      function() Snacks.toggle.indent():toggle() end,
+      desc = "Toggle Indent Guides",
+    },
+  },
 }
 
