@@ -16,7 +16,7 @@ return {
     })
 
     -- Install parsers, skipping ones already installed (so this doesn't reinstall on every start)
-    local ensure_installed = { "python", "lua", "bash", "vim", "vimdoc", "markdown" }
+    local ensure_installed = { "python", "lua", "bash", "vim", "vimdoc", "markdown", "regex", "latex", "html", "yaml" }
     local already_installed = require("nvim-treesitter.config").get_installed()
     local to_install = vim.iter(ensure_installed)
       :filter(function(p) return not vim.tbl_contains(already_installed, p) end)

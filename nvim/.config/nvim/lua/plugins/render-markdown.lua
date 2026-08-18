@@ -8,7 +8,7 @@ return {
     ---@type render.md.UserConfig
     config = function()
       require("render-markdown").setup({
-        table = {
+        pipe_table = {
           -- Ensure render-markdown's built-in table features are enabled
           enabled = true,
           style = "full",
