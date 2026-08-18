@@ -22,6 +22,10 @@ return {
       function() Snacks.toggle.indent():toggle() end,
       desc = "Toggle Indent Guides",
     },
+    { "<leader>ff", function() Snacks.picker.files() end, desc = "Find Files" },
+    { "<leader>fg", function() Snacks.picker.grep() end, desc = "Live Grep" },
+    { "<leader>fr", function() Snacks.picker.recent() end, desc = "Recent Files" },
+    { "<leader>bf", function() Snacks.picker.buffers() end, desc = "Find Buffer" },
   },
 }
 
