@@ -10,7 +10,6 @@ require("config.lazy")
 require("config.options")
 require("config.keymaps")
 require("config.autocmds")
-require("config.unmatched-brackets")
 
 -- 3. Install and Configure Plugins
 -- require("lazy_init")

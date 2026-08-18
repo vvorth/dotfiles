@@ -17,7 +17,6 @@ wk.add({
 
   -- Code
   { "<leader>cr", "<cmd>RenderMarkdown toggle<cr>", desc = "Toggle Markdown Render", icon = { icon = " " } },
-  { "<leader>cb", function() require("config.unmatched-brackets").toggle() end, desc = "Toggle Unmatched Bracket Highlight" },
 
   -- File
   { "<leader>fs", "<cmd>write<cr>", desc = "Save File", icon = { icon = "󰆓 " } },
