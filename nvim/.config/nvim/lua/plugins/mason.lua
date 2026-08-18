@@ -3,13 +3,13 @@
 
 return {
   {
-    "williamboman/mason.nvim",
+    "mason-org/mason.nvim",
     cmd = "Mason",
     opts = {},
   },
   {
     "WhoIsSethDaniel/mason-tool-installer.nvim",
-    dependencies = { "williamboman/mason.nvim" },
+    dependencies = { "mason-org/mason.nvim" },
     event = "VeryLazy",
     opts = {
       ensure_installed = {
@@ -21,7 +21,7 @@ return {
         "taplo",      -- TOML
         -- LSP servers / linters can also go in this list — this plugin
         -- installs anything Mason knows about, not just formatters
-        "tree-sitter-cli",
+          "tree-sitter-cli",
       },
       auto_update = false,   -- set true if you want it to also keep tools up to date on startup
       run_on_start = true,

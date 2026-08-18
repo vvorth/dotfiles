@@ -11,6 +11,10 @@ return {
         easing = "linear",
       },
     },
+    picker = { enabled = true },
+    bigfile = { enabled = true },
+    quickfile = { enabled = true },
+    indent = { enabled = true },
   },
 }
 
