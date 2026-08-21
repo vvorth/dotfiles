@@ -23,7 +23,7 @@ export PROMPT_COMMAND="history -a; history -c; history -r; $PROMPT_COMMAND"
 
 CNF=/usr/share/doc/pkgfile/command-not-found.bash
 [[ -f $CNF ]] && source $CNF || true
-
+unset CNF
 
 
 # Color Reset

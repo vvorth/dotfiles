@@ -5,6 +5,7 @@ bindkey -e
 
 CNF=/usr/share/doc/pkgfile/command-not-found.zsh
 [[ -f $CNF ]] && source $CNF || true
+unset CNF
 
 # Define where history is stored
 export HISTFILE=~/.zsh_history
