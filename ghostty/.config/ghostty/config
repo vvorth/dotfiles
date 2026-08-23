@@ -1,0 +1,13 @@
+theme = Selenized Dark
+font-family = CaskaydiaCove Nerd Font Mono
+font-size = 15
+mouse-hide-while-typing = true
+window-decoration = true
+macos-option-as-alt = true
+background-opacity = 0.9
+background-blur-radius = 20
+# macos-window-buttons = hidden
+macos-titlebar-style = tabs
+# macos-titlebar-style = hidden
+copy-on-select = clipboard
+
