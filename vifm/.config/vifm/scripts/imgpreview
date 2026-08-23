@@ -7,12 +7,10 @@
 #      graphics protocol (kitty/iTerm2/sixel) itself, *including* inside
 #      tmux or GNU screen (it chains outer-multiplexer + inner-terminal
 #      detection and manages tmux's `allow-passthrough` on its own), and
-#      falls back to colored Unicode/ANSI block art if none is found.
-#      Earlier versions of this script tried to guess the terminal/
-#      protocol itself and force it via `-f`, but that used weaker
-#      heuristics than chafa's own and broke under tmux (which hides most
-#      terminal-identifying env vars from panes unless explicitly
-#      forwarded) -- just trust chafa here.
+#      falls back to colored Unicode/ANSI block art if none is found. Do
+#      not try to guess the terminal/protocol here and force it via `-f`:
+#      chafa's own env-var chaining is more accurate, and forcing a
+#      protocol the terminal doesn't actually speak just breaks output.
 #   2. ascii-image-converter, then jp2a (plain ascii art, only used if
 #      chafa itself is not installed)
 #
