@@ -22,6 +22,12 @@
 # that protocol: terminals that don't understand it silently ignore
 # unrecognized APC sequences by design, so it's a harmless no-op on
 # sixel/iTerm2/plain terminals and only does real work where it's needed.
+# It's written directly to /dev/tty rather than stdout: vifm runs the
+# clear command with its stdout piped back to itself and just discards
+# whatever it reads instead of displaying it (unlike the draw command's
+# output, which it deliberately re-prints -- see
+# src/ui/quickview.c:qv_cleanup_area in vifm's source), so writing to
+# stdout here would silently vanish and never reach the terminal.
 #
 # tmux users: add to tmux.conf for graphics to reach the real terminal:
 #   set -g allow-passthrough on
@@ -84,7 +90,8 @@ action="${1:-}"
 shift || true
 
 if [[ "$action" == clear ]]; then
-    send_passthrough "$kitty_clear_seq"
+    # Write to /dev/tty, not stdout -- see the file header for why.
+    send_passthrough "$kitty_clear_seq" > /dev/tty 2>/dev/null
     exit 0
 fi
 
