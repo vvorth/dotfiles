@@ -253,13 +253,17 @@ fileviewer {*.pdf},<application/pdf> pdftotext -nopgbrk %c -
 " come before the stock Audio/Video/Images fileviewer entries below, since
 " vifm uses the first matching one.  %pd marks this a pass-through
 " previewer, so vifm sends chafa's raw output straight to the terminal
-" instead of mangling it through its own ncurses rendering (chafa's
-" sequences are cursor-position-relative, like sixel, so no %px/%py
-" placement is needed); the clear command after %pc runs whenever the
-" preview is closed or changed.
+" instead of mangling it through its own ncurses rendering.  %px/%py are
+" also passed so imgpreview can reposition each output line itself: vifm's
+" own pass-through handling only positions the cursor once, at the top-
+" left of the preview pane, which is fine for a single self-contained
+" graphics blob but corrupts the whole UI for chafa's multi-line ascii/
+" symbol fallback (each line break can drift to the terminal's real
+" column 0 instead of the pane's edge).  The clear command after %pc runs
+" whenever the preview is closed or changed.
 fileviewer {*.bmp,*.jpg,*.jpeg,*.png,*.gif,*.xpm,*.webp,*.avif,*.heic,*.heif},
           \<image/*>
-         \ imgpreview draw image %c %pw %ph %pd
+         \ imgpreview draw image %c %pw %ph %px %py %pd
          \ %pc
          \ imgpreview clear %pd
 
@@ -267,7 +271,7 @@ fileviewer {*.avi,*.mp4,*.wmv,*.dat,*.3gp,*.ogv,*.mkv,*.mpg,*.mpeg,*.vob,
            \*.fl[icv],*.m2v,*.mov,*.webm,*.mts,*.m4v,*.r[am],*.qt,*.divx,
            \*.as[fx],*.unknown_video},
           \<video/*>
-         \ imgpreview draw video %c %pw %ph %pd
+         \ imgpreview draw video %c %pw %ph %px %py %pd
          \ %pc
          \ imgpreview clear %pd
 

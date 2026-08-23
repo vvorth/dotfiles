@@ -26,18 +26,24 @@
 # tmux users: add to tmux.conf for graphics to reach the real terminal:
 #   set -g allow-passthrough on
 #
-# Both the draw and clear commands are registered in vifmrc with the %pd
-# macro, which marks this as a "pass-through" previewer: vifm sends its
-# output straight to the terminal instead of capturing/redrawing it
-# through its own ncurses layer. Without %pd, chafa's real graphics-
-# protocol bytes (unlike e.g. `kitty icat`, which writes to /dev/tty
-# directly and so doesn't need this) get corrupted by that layer -- this
-# is what vifm's docs mean by "likely to mangle terminal state", and
-# matches literal escape-code garbage showing up in the preview pane.
+# The draw and clear commands are registered in vifmrc with the %pd macro,
+# marking this a "pass-through" previewer: vifm sends its output straight
+# to the terminal instead of capturing/redrawing it through its own
+# ncurses layer, which would otherwise corrupt real graphics-protocol
+# bytes (see vifm's src/ui/ui.c:ui_pass_through()).  But that function
+# only positions the cursor *once*, at the pane's top-left corner, then
+# blindly prints each output line -- fine for a single self-contained
+# graphics blob (sixel/kitty/iTerm2 don't need line breaks for row
+# placement), but not for chafa's plain multi-line ascii/symbol fallback:
+# each '\n' can drift the cursor back to the terminal's real column 0
+# instead of the pane's left edge, corrupting the whole UI rather than
+# just the preview. reposition() below fixes this by explicitly moving
+# the cursor before every line itself, so it stays correct regardless of
+# which rendering tier (real graphics or ascii text) actually ran.
 #
 # Usage (see vifmrc):
-#   imgpreview draw image <file> <pw> <ph>
-#   imgpreview draw video <file> <pw> <ph>
+#   imgpreview draw image <file> <pw> <ph> <px> <py>
+#   imgpreview draw video <file> <pw> <ph> <px> <py>
 #   imgpreview clear
 
 set -uo pipefail
@@ -60,6 +66,20 @@ send_passthrough () {
     fi
 }
 
+# Read stdin and re-emit each line with an absolute cursor-position escape
+# (%px/%py are 0-indexed screen coordinates; CUP is 1-indexed) prefixed,
+# capped at $ph lines. A trailing SGR reset stops chafa's/jp2a's colors
+# from leaking into the rest of vifm's UI.
+reposition () {
+    local row=0 line
+    while IFS= read -r line; do
+        (( row >= ph )) && break
+        printf '%s[%d;%dH%s\n' "$ESC" "$((py + 1 + row))" "$((px + 1))" "$line"
+        row=$((row + 1))
+    done
+    printf '%s[0m' "$ESC"
+}
+
 action="${1:-}"
 shift || true
 
@@ -68,7 +88,7 @@ if [[ "$action" == clear ]]; then
     exit 0
 fi
 
-kind="${1:-image}"; file="$2"; pw="$3"; ph="$4"
+kind="${1:-image}"; file="$2"; pw="$3"; ph="$4"; px="$5"; py="$6"
 
 [[ -r "$file" ]] || { echo "(cannot read file)"; exit 1; }
 
@@ -89,19 +109,19 @@ if [[ "$kind" == video ]]; then
 fi
 
 if command -v chafa >/dev/null 2>&1; then
-    chafa --size="${pw}x${ph}" -- "$file"
+    chafa --size="${pw}x${ph}" -- "$file" | reposition
     exit 0
 fi
 
 if command -v ascii-image-converter >/dev/null 2>&1; then
-    ascii-image-converter -C -- "$file"
+    ascii-image-converter -C -- "$file" | reposition
     exit 0
 fi
 
 if command -v jp2a >/dev/null 2>&1; then
-    jp2a --colors --width="$pw" --height="$ph" -- "$file"
+    jp2a --colors --width="$pw" --height="$ph" -- "$file" | reposition
     exit 0
 fi
 
-command -v identify >/dev/null 2>&1 && identify -- "$file"
-echo "no image preview tool found (install chafa)"
+{ command -v identify >/dev/null 2>&1 && identify -- "$file"; \
+  echo "no image preview tool found (install chafa)"; } | reposition
