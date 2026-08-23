@@ -313,12 +313,13 @@ fileviewer {*.[1-8]},<text/troff> man ./%c | col -b
 
 " Image / video previews: real terminal graphics with automatic fallback.
 " imgpreview (in scripts/) picks the best available renderer at preview
-" time: kitty's `icat` kitten in the kitty terminal, else chafa (which
-" auto-negotiates the terminal's own graphics protocol -- kitty/iTerm2/
-" sixel -- and falls back to colored ANSI/Unicode block art on its own),
-" else a plain ascii render via ascii-image-converter or jp2a.  Presence
-" of %px and %py marks this as a graphical previewer, so the clear command
-" after %pc runs whenever the preview is closed or changed.
+" time: chafa forced to the kitty graphics protocol on terminals known to
+" speak it (kitty, Ghostty, WezTerm), else chafa in auto mode (which
+" probes the terminal itself for sixel/iTerm2 support and falls back to
+" colored ANSI/Unicode block art if none is found), else a plain ascii
+" render via ascii-image-converter or jp2a.  Presence of %px and %py marks
+" this as a graphical previewer, so the clear command after %pc runs
+" whenever the preview is closed or changed.
 fileviewer {*.bmp,*.jpg,*.jpeg,*.png,*.gif,*.xpm,*.webp,*.avif,*.heic,*.heif},
           \<image/*>
          \ imgpreview draw image %c %pw %ph %px %py

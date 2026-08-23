@@ -3,11 +3,13 @@
 # imgpreview: draw/clear an image (or video-thumbnail) preview for vifm.
 #
 # Picks the best available renderer at preview time:
-#   1. kitty's graphics protocol via the `icat` kitten   (kitty terminal only)
-#   2. chafa                                             (auto-negotiates
-#      the terminal's own graphics protocol -- kitty/iTerm2/sixel -- and
-#      transparently falls back to colored Unicode/ANSI block art if the
-#      terminal can't do real graphics)
+#   1. chafa, forced to the kitty graphics protocol on terminals known to
+#      speak it (kitty, Ghostty, WezTerm) -- real image, no extra
+#      dependency: chafa implements the protocol itself, no need for the
+#      `kitty` binary even outside the actual kitty terminal.
+#   2. chafa in auto mode on everything else -- it probes the terminal
+#      itself for sixel/iTerm2 support and falls back to colored
+#      Unicode/ANSI block art if the terminal can't do real graphics.
 #   3. ascii-image-converter, then jp2a                  (plain ascii art,
 #      only used if chafa itself is not installed)
 #
@@ -20,19 +22,28 @@ set -uo pipefail
 
 CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/vifm/thumbnails"
 
-is_kitty() {
-    [[ -n "${KITTY_WINDOW_ID:-}" ]] || [[ "${TERM:-}" == xterm-kitty ]]
+# Terminals that implement the kitty graphics protocol, whether or not the
+# `kitty` terminal app itself is installed (Ghostty and WezTerm both do).
+kitty_protocol_terminal() {
+    [[ -n "${KITTY_WINDOW_ID:-}" ]] && return 0
+    [[ -n "${GHOSTTY_RESOURCES_DIR:-}" ]] && return 0
+    [[ "${TERM_PROGRAM:-}" == "WezTerm" ]] && return 0
+    case "${TERM:-}" in
+        xterm-kitty|xterm-ghostty) return 0 ;;
+    esac
+    return 1
 }
 
 action="${1:-}"
 shift || true
 
 if [[ "$action" == clear ]]; then
-    # Only kitty's protocol leaves a persistent overlay that needs an
-    # explicit erase; chafa/ascii output is plain text that the next
-    # redraw simply overwrites.
-    if is_kitty && command -v kitty >/dev/null 2>&1; then
-        kitty +kitten icat --clear --silent --transfer-mode=memory
+    # Real graphics-protocol images are a persistent overlay that needs an
+    # explicit erase (APC delete-all-images command); chafa's symbol/ANSI
+    # fallback and the ascii tools just print plain text that the next
+    # redraw overwrites on its own.
+    if kitty_protocol_terminal; then
+        printf '\033_Ga=d,d=A\033\\'
     fi
     exit 0
 fi
@@ -57,14 +68,12 @@ if [[ "$kind" == video ]]; then
     file="$thumb"
 fi
 
-if is_kitty && command -v kitty >/dev/null 2>&1; then
-    kitty +kitten icat --transfer-mode=memory --stdin=no --silent \
-        --place="${pw}x${ph}@${px}x${py}" -- "$file"
-    exit 0
-fi
-
 if command -v chafa >/dev/null 2>&1; then
-    chafa --size="${pw}x${ph}" -- "$file"
+    if kitty_protocol_terminal; then
+        chafa -f kitty --size="${pw}x${ph}" -- "$file"
+    else
+        chafa --size="${pw}x${ph}" -- "$file"
+    fi
     exit 0
 fi
 
