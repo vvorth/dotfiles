@@ -4,12 +4,13 @@
 #
 # Picks the best available renderer at preview time:
 #   1. chafa, forced to the kitty graphics protocol on terminals known to
-#      speak it (kitty, Ghostty, WezTerm) -- real image, no extra
-#      dependency: chafa implements the protocol itself, no need for the
-#      `kitty` binary even outside the actual kitty terminal.
+#      speak it (kitty, Ghostty, WezTerm), or to the iTerm2 inline-image
+#      protocol on iTerm2 -- real image, no extra dependency: chafa
+#      implements both protocols itself, no need for the `kitty` binary
+#      or iTerm2's `imgcat` script.
 #   2. chafa in auto mode on everything else -- it probes the terminal
-#      itself for sixel/iTerm2 support and falls back to colored
-#      Unicode/ANSI block art if the terminal can't do real graphics.
+#      itself for sixel support and falls back to colored Unicode/ANSI
+#      block art if the terminal can't do real graphics.
 #   3. ascii-image-converter, then jp2a                  (plain ascii art,
 #      only used if chafa itself is not installed)
 #
@@ -32,6 +33,24 @@ kitty_protocol_terminal() {
         xterm-kitty|xterm-ghostty) return 0 ;;
     esac
     return 1
+}
+
+# iTerm2's own inline-image protocol (OSC 1337 File=).  Its images scroll
+# with normal output, unlike kitty-protocol overlays, so no explicit clear
+# is needed for it.
+is_iterm2() {
+    [[ "${TERM_PROGRAM:-}" == "iTerm.app" ]] && return 0
+    [[ -n "${ITERM_SESSION_ID:-}" ]] && return 0
+    return 1
+}
+
+# chafa's -f/--format flag to force, or empty for auto-detection.
+chafa_format() {
+    if kitty_protocol_terminal; then
+        echo kitty
+    elif is_iterm2; then
+        echo iterm
+    fi
 }
 
 action="${1:-}"
@@ -69,11 +88,10 @@ if [[ "$kind" == video ]]; then
 fi
 
 if command -v chafa >/dev/null 2>&1; then
-    if kitty_protocol_terminal; then
-        chafa -f kitty --size="${pw}x${ph}" -- "$file"
-    else
-        chafa --size="${pw}x${ph}" -- "$file"
-    fi
+    fmt="$(chafa_format)"
+    fmt_args=()
+    [[ -n "$fmt" ]] && fmt_args=(-f "$fmt")
+    chafa "${fmt_args[@]}" --size="${pw}x${ph}" -- "$file"
     exit 0
 fi
 
