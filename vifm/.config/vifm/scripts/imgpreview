@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+#
+# imgpreview: draw/clear an image (or video-thumbnail) preview for vifm.
+#
+# Picks the best available renderer at preview time:
+#   1. kitty's graphics protocol via the `icat` kitten   (kitty terminal only)
+#   2. chafa                                             (auto-negotiates
+#      the terminal's own graphics protocol -- kitty/iTerm2/sixel -- and
+#      transparently falls back to colored Unicode/ANSI block art if the
+#      terminal can't do real graphics)
+#   3. ascii-image-converter, then jp2a                  (plain ascii art,
+#      only used if chafa itself is not installed)
+#
+# Usage (see vifmrc):
+#   imgpreview draw image <file> <pw> <ph> <px> <py>
+#   imgpreview draw video <file> <pw> <ph> <px> <py>
+#   imgpreview clear
+
+set -uo pipefail
+
+CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/vifm/thumbnails"
+
+is_kitty() {
+    [[ -n "${KITTY_WINDOW_ID:-}" ]] || [[ "${TERM:-}" == xterm-kitty ]]
+}
+
+action="${1:-}"
+shift || true
+
+if [[ "$action" == clear ]]; then
+    # Only kitty's protocol leaves a persistent overlay that needs an
+    # explicit erase; chafa/ascii output is plain text that the next
+    # redraw simply overwrites.
+    if is_kitty && command -v kitty >/dev/null 2>&1; then
+        kitty +kitten icat --clear --silent --transfer-mode=memory
+    fi
+    exit 0
+fi
+
+kind="${1:-image}"; file="$2"; pw="$3"; ph="$4"; px="$5"; py="$6"
+
+[[ -r "$file" ]] || { echo "(cannot read file)"; exit 1; }
+
+if [[ "$kind" == video ]]; then
+    if ! command -v ffmpegthumbnailer >/dev/null 2>&1; then
+        echo "install ffmpegthumbnailer for video thumbnails"
+        exit 1
+    fi
+    mkdir -p "$CACHE_DIR"
+    mtime="$(stat -c %Y -- "$file" 2>/dev/null || stat -f %m -- "$file" 2>/dev/null)"
+    key="$(printf '%s %s' "$file" "$mtime" | cksum | cut -d' ' -f1)"
+    thumb="$CACHE_DIR/$key.jpg"
+    if [[ ! -s "$thumb" ]]; then
+        ffmpegthumbnailer -i "$file" -o "$thumb" -s 0 -q 10 2>/dev/null \
+            || { echo "(could not generate thumbnail)"; exit 1; }
+    fi
+    file="$thumb"
+fi
+
+if is_kitty && command -v kitty >/dev/null 2>&1; then
+    kitty +kitten icat --transfer-mode=memory --stdin=no --silent \
+        --place="${pw}x${ph}@${px}x${py}" -- "$file"
+    exit 0
+fi
+
+if command -v chafa >/dev/null 2>&1; then
+    chafa --size="${pw}x${ph}" -- "$file"
+    exit 0
+fi
+
+if command -v ascii-image-converter >/dev/null 2>&1; then
+    ascii-image-converter -C -- "$file"
+    exit 0
+fi
+
+if command -v jp2a >/dev/null 2>&1; then
+    jp2a --colors --width="$pw" --height="$ph" -- "$file"
+    exit 0
+fi
+
+command -v identify >/dev/null 2>&1 && identify -- "$file"
+echo "no image preview tool found (install chafa)"
