@@ -26,9 +26,18 @@
 # tmux users: add to tmux.conf for graphics to reach the real terminal:
 #   set -g allow-passthrough on
 #
+# Both the draw and clear commands are registered in vifmrc with the %pd
+# macro, which marks this as a "pass-through" previewer: vifm sends its
+# output straight to the terminal instead of capturing/redrawing it
+# through its own ncurses layer. Without %pd, chafa's real graphics-
+# protocol bytes (unlike e.g. `kitty icat`, which writes to /dev/tty
+# directly and so doesn't need this) get corrupted by that layer -- this
+# is what vifm's docs mean by "likely to mangle terminal state", and
+# matches literal escape-code garbage showing up in the preview pane.
+#
 # Usage (see vifmrc):
-#   imgpreview draw image <file> <pw> <ph> <px> <py>
-#   imgpreview draw video <file> <pw> <ph> <px> <py>
+#   imgpreview draw image <file> <pw> <ph>
+#   imgpreview draw video <file> <pw> <ph>
 #   imgpreview clear
 
 set -uo pipefail
@@ -59,7 +68,7 @@ if [[ "$action" == clear ]]; then
     exit 0
 fi
 
-kind="${1:-image}"; file="$2"; pw="$3"; ph="$4"; px="$5"; py="$6"
+kind="${1:-image}"; file="$2"; pw="$3"; ph="$4"
 
 [[ -r "$file" ]] || { echo "(cannot read file)"; exit 1; }
 
