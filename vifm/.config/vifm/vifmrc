@@ -243,6 +243,31 @@ command! reload :write | restart full
 filextype {*.pdf},<application/pdf> zathura %c %i, apvlv %c, xpdf %c
 fileviewer {*.pdf},<application/pdf> pdftotext -nopgbrk %c -
 
+" Image / video previews: real terminal graphics with automatic fallback.
+" imgpreview (in scripts/) hands rendering to chafa in auto mode, which
+" detects the terminal's own graphics protocol (kitty/iTerm2/sixel) --
+" including inside tmux/GNU screen, where it chains outer-multiplexer and
+" inner-terminal detection and manages tmux's `allow-passthrough` itself
+" -- and falls back to colored Unicode/ANSI block art if none is found,
+" else a plain ascii render via ascii-image-converter or jp2a.  This must
+" come before the stock Audio/Video/Images fileviewer entries below, since
+" vifm uses the first matching one.  Presence of %px and %py marks this as
+" a graphical previewer, so the clear command after %pc runs whenever the
+" preview is closed or changed.
+fileviewer {*.bmp,*.jpg,*.jpeg,*.png,*.gif,*.xpm,*.webp,*.avif,*.heic,*.heif},
+          \<image/*>
+         \ imgpreview draw image %c %pw %ph %px %py
+         \ %pc
+         \ imgpreview clear
+
+fileviewer {*.avi,*.mp4,*.wmv,*.dat,*.3gp,*.ogv,*.mkv,*.mpg,*.mpeg,*.vob,
+           \*.fl[icv],*.m2v,*.mov,*.webm,*.mts,*.m4v,*.r[am],*.qt,*.divx,
+           \*.as[fx],*.unknown_video},
+          \<video/*>
+         \ imgpreview draw video %c %pw %ph %px %py
+         \ %pc
+         \ imgpreview clear
+
 " PostScript
 filextype {*.ps,*.eps,*.ps.gz},<application/postscript>
         \ {View in zathura}
@@ -310,29 +335,6 @@ filetype {*.o},<application/x-object> nm %f | less
 " Man page
 filetype {*.[1-8]},<text/troff> man ./%c
 fileviewer {*.[1-8]},<text/troff> man ./%c | col -b
-
-" Image / video previews: real terminal graphics with automatic fallback.
-" imgpreview (in scripts/) picks the best available renderer at preview
-" time: chafa forced to the kitty graphics protocol on terminals known to
-" speak it (kitty, Ghostty, WezTerm) or to iTerm2's inline-image protocol
-" on iTerm2, else chafa in auto mode (which probes the terminal itself for
-" sixel support and falls back to colored ANSI/Unicode block art if none
-" is found), else a plain ascii render via ascii-image-converter or jp2a.
-" Presence of %px and %py marks this as a graphical previewer, so the
-" clear command after %pc runs whenever the preview is closed or changed.
-fileviewer {*.bmp,*.jpg,*.jpeg,*.png,*.gif,*.xpm,*.webp,*.avif,*.heic,*.heif},
-          \<image/*>
-         \ imgpreview draw image %c %pw %ph %px %py
-         \ %pc
-         \ imgpreview clear
-
-fileviewer {*.avi,*.mp4,*.wmv,*.dat,*.3gp,*.ogv,*.mkv,*.mpg,*.mpeg,*.vob,
-           \*.fl[icv],*.m2v,*.mov,*.webm,*.mts,*.m4v,*.r[am],*.qt,*.divx,
-           \*.as[fx],*.unknown_video},
-          \<video/*>
-         \ imgpreview draw video %c %pw %ph %px %py
-         \ %pc
-         \ imgpreview clear
 
 " Images
 filextype {*.svg,*.svgz},<image/svg+xml>

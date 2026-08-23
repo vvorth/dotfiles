@@ -2,17 +2,29 @@
 #
 # imgpreview: draw/clear an image (or video-thumbnail) preview for vifm.
 #
-# Picks the best available renderer at preview time:
-#   1. chafa, forced to the kitty graphics protocol on terminals known to
-#      speak it (kitty, Ghostty, WezTerm), or to the iTerm2 inline-image
-#      protocol on iTerm2 -- real image, no extra dependency: chafa
-#      implements both protocols itself, no need for the `kitty` binary
-#      or iTerm2's `imgcat` script.
-#   2. chafa in auto mode on everything else -- it probes the terminal
-#      itself for sixel support and falls back to colored Unicode/ANSI
-#      block art if the terminal can't do real graphics.
-#   3. ascii-image-converter, then jp2a                  (plain ascii art,
-#      only used if chafa itself is not installed)
+# Renderer tiers:
+#   1. chafa, in its own auto-detect mode -- it identifies the terminal's
+#      graphics protocol (kitty/iTerm2/sixel) itself, *including* inside
+#      tmux or GNU screen (it chains outer-multiplexer + inner-terminal
+#      detection and manages tmux's `allow-passthrough` on its own), and
+#      falls back to colored Unicode/ANSI block art if none is found.
+#      Earlier versions of this script tried to guess the terminal/
+#      protocol itself and force it via `-f`, but that used weaker
+#      heuristics than chafa's own and broke under tmux (which hides most
+#      terminal-identifying env vars from panes unless explicitly
+#      forwarded) -- just trust chafa here.
+#   2. ascii-image-converter, then jp2a (plain ascii art, only used if
+#      chafa itself is not installed)
+#
+# For clearing, the kitty graphics protocol's "delete all images" command
+# is sent unconditionally (wrapped for tmux/screen passthrough when
+# applicable) rather than trying to detect whether chafa actually used
+# that protocol: terminals that don't understand it silently ignore
+# unrecognized APC sequences by design, so it's a harmless no-op on
+# sixel/iTerm2/plain terminals and only does real work where it's needed.
+#
+# tmux users: add to tmux.conf for graphics to reach the real terminal:
+#   set -g allow-passthrough on
 #
 # Usage (see vifmrc):
 #   imgpreview draw image <file> <pw> <ph> <px> <py>
@@ -22,34 +34,20 @@
 set -uo pipefail
 
 CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/vifm/thumbnails"
+ESC=$'\033'
+kitty_clear_seq="${ESC}_Ga=d,d=A${ESC}\\"
 
-# Terminals that implement the kitty graphics protocol, whether or not the
-# `kitty` terminal app itself is installed (Ghostty and WezTerm both do).
-kitty_protocol_terminal() {
-    [[ -n "${KITTY_WINDOW_ID:-}" ]] && return 0
-    [[ -n "${GHOSTTY_RESOURCES_DIR:-}" ]] && return 0
-    [[ "${TERM_PROGRAM:-}" == "WezTerm" ]] && return 0
-    case "${TERM:-}" in
-        xterm-kitty|xterm-ghostty) return 0 ;;
-    esac
-    return 1
-}
-
-# iTerm2's own inline-image protocol (OSC 1337 File=).  Its images scroll
-# with normal output, unlike kitty-protocol overlays, so no explicit clear
-# is needed for it.
-is_iterm2() {
-    [[ "${TERM_PROGRAM:-}" == "iTerm.app" ]] && return 0
-    [[ -n "${ITERM_SESSION_ID:-}" ]] && return 0
-    return 1
-}
-
-# chafa's -f/--format flag to force, or empty for auto-detection.
-chafa_format() {
-    if kitty_protocol_terminal; then
-        echo kitty
-    elif is_iterm2; then
-        echo iterm
+# Wrap a raw escape sequence for tmux/screen's DCS passthrough (doubling
+# any ESC bytes it contains, as the passthrough envelope requires) so it
+# reaches the real terminal instead of being eaten by the multiplexer.
+send_passthrough () {
+    local payload="${1//$ESC/$ESC$ESC}"
+    if [[ -n "${TMUX:-}" ]]; then
+        printf '%sPtmux;%s%s\\' "$ESC" "$payload" "$ESC"
+    elif [[ -n "${STY:-}" ]]; then
+        printf '%sP%s%s\\' "$ESC" "$payload" "$ESC"
+    else
+        printf '%s' "$1"
     fi
 }
 
@@ -57,13 +55,7 @@ action="${1:-}"
 shift || true
 
 if [[ "$action" == clear ]]; then
-    # Real graphics-protocol images are a persistent overlay that needs an
-    # explicit erase (APC delete-all-images command); chafa's symbol/ANSI
-    # fallback and the ascii tools just print plain text that the next
-    # redraw overwrites on its own.
-    if kitty_protocol_terminal; then
-        printf '\033_Ga=d,d=A\033\\'
-    fi
+    send_passthrough "$kitty_clear_seq"
     exit 0
 fi
 
@@ -88,10 +80,7 @@ if [[ "$kind" == video ]]; then
 fi
 
 if command -v chafa >/dev/null 2>&1; then
-    fmt="$(chafa_format)"
-    fmt_args=()
-    [[ -n "$fmt" ]] && fmt_args=(-f "$fmt")
-    chafa "${fmt_args[@]}" --size="${pw}x${ph}" -- "$file"
+    chafa --size="${pw}x${ph}" -- "$file"
     exit 0
 fi
 
