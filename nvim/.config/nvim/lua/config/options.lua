@@ -41,6 +41,9 @@ vim.opt.tabstop = 4        -- Insert 4 spaces for a tab
 vim.opt.shiftwidth = 4     -- Change the number of spaces inserted for indentation
 vim.opt.softtabstop = 4    -- Makes the spaces feel like real tabs when editing
 
+vim.opt.ignorecase = true
+vim.opt.smartcase = true
+
 -- native natural completion
 vim.opt.wildmenu = true          -- enable cmdline completion at all (on by default in Nvim, explicit anyway)
 vim.opt.wildoptions = "pum"      -- render as a proper popup menu, not the old horizontal statusline list

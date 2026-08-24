@@ -5,7 +5,7 @@ return {
   event = "VeryLazy",
   dependencies = {
     "MunifTanjim/nui.nvim",   -- UI primitives noice is built on
-    "rcarriga/nvim-notify",   -- nicer notification popups (optional but common pairing)
+    -- "rcarriga/nvim-notify",   -- nicer notification popups (optional but common pairing)
   },
   opts = {
     lsp = {
@@ -24,16 +24,25 @@ return {
     },
     views = {
       -- shrink the shared "notify" view's footprint (passed through to nvim-notify)
-      notify = {
-        timeout = 3000,
-        -- max_width = 40,
-        -- max_height = 6,
-        render = "compact",  -- nvim-notify render styles: default | minimal | simple | compact | wrapped-compact
-      },
+      -- notify = {
+      --   timeout = 3000,
+      --   -- max_width = 40,
+      --   -- max_height = 6,
+      --   render = "compact",  -- nvim-notify render styles: default | minimal | simple | compact | wrapped-compact
+      -- },
+      -- test 
+      -- cmdline_popup = {
+      --   position = { row = "25%", col = "50%" },
+      -- },
     },
     routes = {
       { filter = { cmdline = "^:!" }, view = "split" },
     },
+    -- test
+    notify = { enabled = false },
+    messages = { enabled = false },
+    popupmenu = { enabled = true, backend = "nui" }, -- completion menu
+    cmdline = { enabled = true, view = "cmdline_popup" },
   },
 }
 

@@ -10,7 +10,8 @@ wk.add({
   { "<leader>w", group = "Window", icon = { icon = "󰉐 " } },
   { "<leader>u", group = "UI", icon = { icon = "󰔃 " } },
   { "<leader>q", group = "Quit/Session", icon = { icon = "󰗼 " } },
-  { "<leader>e", desc = "Toggle File Explorer", icon = { icon = "󰙅 " } },
+  -- { "<leader>e", desc = "Toggle File Explorer", icon = { icon = "󰙅 " } },
+  { "<leader>e", desc = "File Explorer", icon = { icon = "󰙅 " } },
   { "<leader>l", "<cmd>Lazy<cr>", desc = "Lazy", icon = { icon = "󰒲 " } },
 
   -- { "<leader>?", "<cmd><cr>", desc = "Which-Key all", icon = { icon = "? " } },
@@ -28,6 +29,9 @@ wk.add({
   { "<leader>bp", "<cmd>bprevious<cr>", desc = "Previous Buffer", icon = { icon = "󰒮 " } },
   { "<leader>bl", "<cmd>ls<cr>", desc = "List Buffers", icon = { icon = "󰓩 " } },
   { "<leader>bb", "<cmd>b#<cr>", desc = "To Recent Buffer", icon = { icon = "󰦨 " } },
+
+  -- UI
+  -- { "<leader>ut", function() Snacks.terminal() end, desc = "Toggle Terminal" },
 
   -- Window
   { "<leader>wv", "<cmd>vsplit<cr>", desc = "Split Vertical", icon = { icon = "󰤼 " } },
