@@ -34,6 +34,9 @@ vim.opt.relativenumber = true
 
 vim.opt.mouse = ""            -- disable mouse in all modes
 
+-- lualine and snacks.notify replaces that
+vim.opt.cmdheight = 0
+
 vim.opt.scrolloff = 5         -- keep a few lines of context around the cursor
 
 vim.opt.expandtab = true   -- Convert tabs to spaces
