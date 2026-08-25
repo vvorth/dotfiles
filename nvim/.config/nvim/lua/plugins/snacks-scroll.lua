@@ -19,6 +19,7 @@ return {
     explorer = { enabled = true },
     notifier = { enabled = true },
     statuscolumn = { enabled = true },
+    image = { enable = true },
     -- disabled
     input = { enabled = false },
   },

@@ -32,6 +32,7 @@ wk.add({
 
   -- UI
   -- { "<leader>ut", function() Snacks.terminal() end, desc = "Toggle Terminal" },
+  -- { "<leader>ui", function() Snacks.image.hide() end, desc = "Hide Image" },
 
   -- Window
   { "<leader>wv", "<cmd>vsplit<cr>", desc = "Split Vertical", icon = { icon = "󰤼 " } },
