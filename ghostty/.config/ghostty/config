@@ -17,3 +17,12 @@ macos-titlebar-style = transparent
 # macos-titlebar-style = hidden
 copy-on-select = clipboard
 
+# keybind = shift+up=scroll_page_lines:-20
+# keybind = shift+down=scroll_page_lines:20
+keybind = shift+up=scroll_page_lines:-1
+keybind = shift+down=scroll_page_lines:1
+keybind = shift+page_up=scroll_page_up
+keybind = shift+page_down=scroll_page_down
+
+keybind = super+c=copy_to_clipboard:plain
+

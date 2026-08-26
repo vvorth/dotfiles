@@ -76,7 +76,7 @@
         "acceleration" : 1,
         "distance" : {
           "horizontal" : "44.5px",
-          "vertical" : "80.9px"
+          "vertical" : "auto"
         },
         "modifiers" : {
           "shift" : {
