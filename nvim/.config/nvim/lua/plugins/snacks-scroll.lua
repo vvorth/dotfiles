@@ -17,9 +17,8 @@ return {
     quickfile = { enabled = true },
     indent = { enabled = true },
     explorer = { enabled = true },
-    notifier = { enabled = true },
     statuscolumn = { enabled = true },
-    image = { enable = true },
+    image = { enabled = true, math = { enabled = false } },
     -- disabled
     input = { enabled = false },
   },
