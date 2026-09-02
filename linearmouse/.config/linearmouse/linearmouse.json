@@ -5,39 +5,17 @@
       "if" : {
         "device" : {
           "category" : "mouse",
-          "productID" : "0xc534",
-          "productName" : "USB Receiver",
-          "vendorID" : "0x46d"
+          "productID" : "0x518",
+          "productName" : "2.4G Receiver",
+          "vendorID" : "0x3151"
         }
-      },
-      "pointer" : {
-        "acceleration" : 1,
-        "speed" : 0.08
       },
       "scrolling" : {
         "acceleration" : {
-          "horizontal" : 0
+          "vertical" : 1
         },
-        "reverse" : true,
-        "speed" : {
-          "horizontal" : 6,
-          "vertical" : 10
-        }
-      }
-    },
-    {
-      "if" : {
-        "device" : {
-          "category" : "trackpad",
-          "productID" : "0x0",
-          "productName" : "Apple Internal Keyboard \/ Trackpad",
-          "serialNumber" : "HXMHP400DTS0000J49+A3XN",
-          "vendorID" : "0x0"
-        }
-      },
-      "scrolling" : {
-        "acceleration" : {
-          "horizontal" : 1
+        "reverse" : {
+          "vertical" : true
         }
       }
     },
@@ -53,43 +31,41 @@
           "enabled" : true,
           "threshold" : 50,
           "trigger" : {
-            "button" : 2,
-            "command" : false,
-            "control" : false,
-            "option" : false,
-            "shift" : false
+            "button" : 2
           }
         }
       },
       "if" : {
         "device" : {
           "category" : "mouse",
-          "productID" : "0x518",
-          "productName" : "2.4G Receiver",
-          "vendorID" : "0x3151"
+          "productID" : "0xc542",
+          "productName" : "Wireless Receiver",
+          "vendorID" : "0x46d"
         }
       },
       "pointer" : {
-        "speed" : 0.0995
+        "acceleration" : "unset",
+        "disableAcceleration" : false,
+        "redirectsToScroll" : false,
+        "speed" : 0.089
       },
       "scrolling" : {
-        "acceleration" : 1,
-        "distance" : {
-          "horizontal" : "44.5px",
-          "vertical" : "auto"
+        "acceleration" : {
+          "vertical" : 1
         },
         "modifiers" : {
-          "shift" : {
-            "type" : "alterOrientation"
+          "vertical" : {
+            "shift" : {
+              "type" : "alterOrientation"
+            }
           }
         },
         "reverse" : {
           "vertical" : true
         },
-        "smoothed" : {
-          "enabled" : false
-        },
-        "speed" : 0
+        "speed" : {
+          "vertical" : 10
+        }
       }
     }
   ]

@@ -9,9 +9,10 @@ macos-option-as-alt = true
 window-padding-balance = true
 window-padding-x = 3
 window-padding-y = 3
-background-opacity = 0.9
 background-blur-radius = 20
-# macos-window-buttons = hidden
+background-opacity = 0.9
+# liquid glass
+# background-blur = macos-glass-clear
 # macos-titlebar-style = tabs
 macos-titlebar-style = transparent
 # macos-titlebar-style = hidden
