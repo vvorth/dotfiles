@@ -47,7 +47,7 @@
         "acceleration" : "unset",
         "disableAcceleration" : false,
         "redirectsToScroll" : false,
-        "speed" : 0.089
+        "speed" : 0.08
       },
       "scrolling" : {
         "acceleration" : {
