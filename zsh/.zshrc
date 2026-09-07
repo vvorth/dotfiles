@@ -2,6 +2,8 @@
 plugins=()
 
 bindkey -e
+bindkey '^p' history-search-backward
+bindkey '^n' history-search-forward
 
 CNF=/usr/share/doc/pkgfile/command-not-found.zsh
 [[ -f $CNF ]] && source $CNF || true
@@ -15,13 +17,17 @@ export HISTSIZE=50000
 export SAVEHIST=50000
 
 # Save timestamps to the history file
-setopt EXTENDED_HISTORY
+setopt extended_history
 
 # Share history across all active terminal windows immediately
-setopt SHARE_HISTORY
+setopt appendhistory
+setopt sharehistory
 
 # Skip saving duplicate consecutive commands
-setopt HIST_IGNORE_DUPS
+setopt hist_ignore_dups
+setopt hist_save_no_dups
+setopt hist_find_no_dups
+setopt hist_ignore_space
 
 # Don't remove trailing slash from path
 setopt NO_AUTO_REMOVE_SLASH
