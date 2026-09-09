@@ -55,6 +55,35 @@ zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
 # Load the Zsh color module
 autoload -U colors && colors
 
+
+# ZLE
+# Buffer line editor
+# load from zshcontrib
+autoload -Uz edit-command-line
+# register as ZLE widget
+zle -N edit-command-line
+# bind of course
+bindkey '^x^e' edit-command-line
+
+
+# Clear screen, keep buffer
+clear-keep-buffer() {
+  zle clear-screen
+}
+zle -N clear-keep-buffer
+bindkey '^xl' clear-keep-buffer
+
+# Copy current command to clipboard
+# copy-command() {
+#   (( $command[pbcopy] )) && echo -n $BUFFER | pbcopy
+#   zle -M "Copied to clipboard"
+# }
+# zle -N copy-command
+# bindkey '^xc' copy-command
+
+# magick key
+bindkey ' ' magic-space
+
 # Regular Colors
 BLACK="$fg[black]"
 RED="$fg[red]"
