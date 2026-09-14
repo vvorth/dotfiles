@@ -1,5 +1,6 @@
 # vim: set ft=config:
 
+confirm-close-surface = always
 theme = Selenized Dark
 font-family = CaskaydiaCove Nerd Font Mono
 font-size = 15
