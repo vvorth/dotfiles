@@ -672,3 +672,5 @@ nnoremap e :!$EDITOR %f <cr>
 
 command! Rsync tsp rsync -rlDvP %f %D/ 
 
+set viewcolumns=-{name}..,6{size},18{ctime}
+
