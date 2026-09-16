@@ -132,10 +132,12 @@ format = "[$user@]($style)"
 
 [hostname]
 ssh_only = false
-# Shown only over SSH; another cue that this is not the laptop.
+# Shown only over SSH; another cue that this is not the laptop. It trails the
+# hostname rather than leading it, so it does not wedge itself between the
+# "user@" and the name.
 ssh_symbol = " "
 style = "bg:host fg:host_text"
-format = "[$ssh_symbol$hostname ]($style)"
+format = "[$hostname$ssh_symbol ]($style)"
 trim_at = "."
 
 
