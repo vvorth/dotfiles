@@ -36,8 +36,9 @@ Both `bash/.bashrc` and `zsh/.zshrc` source, in order:
 2. every `*.sh` in `${XDG_CONFIG_HOME:-$HOME/.config}/sh/conf.d/` — a shell-agnostic drop-in
    dir. **Any package can contribute a file here**, not just `bash/`: e.g.
    `bash/.config/sh/conf.d/40-fzf.sh` sets up fzf, `nvim/.config/sh/conf.d/50-nvim.sh` aliases
-   `vi`/`vim` → `nvim` and sets `$EDITOR`/`$MANPAGER`. Use this when a package's shell
-   integration should apply regardless of which shell is running.
+   `vi`/`vim` → `nvim` and sets `$EDITOR`/`$MANPAGER`, `starship/.config/sh/conf.d/60-starship.sh`
+   picks this machine's prompt colour and runs `starship init`. Use this when a package's
+   shell integration should apply regardless of which shell is running.
 3. shell-specific conf.d (`bash/conf.d/*.sh` or `zsh/conf.d/*.zsh`) for things that must be
    bash-only or zsh-only.
 4. a machine-local, untracked override file (`~/.bashrc.local` / `~/.zshrc.local` /
@@ -47,6 +48,69 @@ Both `bash/.bashrc` and `zsh/.zshrc` source, in order:
 `.gitignore` only excludes `nvim/.config/nvim/lazy-lock.json` (plugin lockfile, regenerates
 per-machine) — the `.local` files above aren't gitignored, they just never get committed
 because nothing here creates them.
+
+## starship — per-host prompt colour
+
+`starship/.config/starship.toml` + `starship/.config/sh/conf.d/60-starship.sh`.
+
+The prompt is deliberately near-monochrome apart from two things: a coloured pill holding
+`<os icon> [user@]host`, and the git-status icons. The pill's hue — plus the `❯` and the dark
+tint the rest of the bar sits on — is **one colour per machine**. That is the entire point of
+the setup: it replaces the old "whole prompt is cyan/green/purple depending on the host" PS1,
+which the stock starship presets destroy by colouring everything.
+
+Palettes shipped: `cyan`, `green`, `purple`, `amber`, `rose`, and `slate` (the neutral
+fallback for a machine that has not been assigned one).
+
+**Why the colour switch is indirect:** starship has no config includes and does not expand
+environment variables inside style strings — both confirmed against starship 1.26 by testing
+the binary rather than reading docs (`format = "[x](${VAR})"` renders unstyled; a top-level
+`include = "..."` key errors with `Unknown key`). A palette is chosen by one static top-level
+`palette = "..."` key. So `60-starship.sh` sed-rewrites that single line into a generated copy
+at `~/.cache/starship/prompt-<palette>.toml` and exports `STARSHIP_CONFIG` pointing at it.
+What follows from that:
+
+- **`~/.config/starship.toml` is still the only file to edit.** The cache copy is regenerated
+  whenever the tracked file is newer (`-nt`), so edits appear in the next new shell.
+- The `palette = "..."` line in the tracked config must keep its exact shape (that literal at
+  column 0) — the sed matches on it. It is set to `slate` there so the file also works
+  standalone, e.g. under a bare `STARSHIP_CONFIG=... starship print-config`.
+- A normal shell start costs one `stat()`; the sed and the palette-name validation only run on
+  a cache miss.
+
+Palette selection, highest precedence first: an already-exported `$STARSHIP_HOST_PALETTE` →
+the untracked one-word file `~/.config/starship-host` → the hostname `case` table inside
+`60-starship.sh` (tracked, so filling it in once covers every machine that syncs this repo) →
+`slate`. Per host the quickest setup is `starship-palette -w green`; without `-w` it switches
+only the current shell, which is how to compare colours side by side.
+
+Non-obvious things learned building this:
+
+- **A palette *name* is not a colour name.** `fg:rose` does not resolve just because
+  `[palettes.rose]` exists — a palette maps its own keys (`host`, `host_text`, `surface`,
+  `text`, `muted`). An unresolvable colour makes starship silently drop the *whole* style,
+  which here showed up as one segment losing its background and punching a hole in the bar.
+  Use palette keys or plain ANSI names, and re-render after touching styles.
+- Conversely, palette names do **not** shadow ANSI colour names: with `palette = "cyan"`
+  active, `fg:cyan` still renders ANSI cyan (verified). The git-status icons deliberately use
+  ANSI names (`green`, `yellow`, `red`, `bright-blue`, …) so they follow the terminal theme
+  instead of being pinned to hex.
+- Each git-status item is its own conditional group — `([ $staged](fg:green bg:surface))` — so
+  a clean repo prints nothing at all rather than a row of zeroes. Leading spaces live *inside*
+  those groups and no module format ends with a trailing space; mixing the two conventions is
+  what produces double gaps on clean repos.
+- The pill's hex colours need truecolor. `tmux/.tmux.conf` sets no `default-terminal` and no
+  `terminal-features ",*:RGB"`, so inside tmux this leans on tmux's own RGB auto-detection
+  from the outer terminal. If the pill ever looks washed out inside tmux but fine outside it,
+  that pair of settings is the first thing to try.
+- `starship init bash` replaces `PROMPT_COMMAND`, but stashes the previous value in
+  `STARSHIP_PROMPT_COMMAND` and evals it from its own precmd — so `.bashrc`'s
+  `history -a; history -c; history -r` sharing keeps working underneath it.
+- Verified in the sandbox by downloading the real starship binary and rendering
+  `starship prompt` against a throwaway git repo in every state (clean, staged, modified,
+  deleted, untracked, non-zero exit, background jobs), for every palette, plus sourcing
+  `60-starship.sh` in real `bash -c` and `zsh -f -c` shells. `starship print-config` is the
+  fast "does this even parse" check — it warns about unknown keys and missing palettes.
 
 ## vifm — image/video previews
 

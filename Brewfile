@@ -52,6 +52,8 @@ brew "sevenzip"
 brew "shfmt"
 # Monitors sleep, wakeup, and idleness of a Mac
 brew "sleepwatcher", restart_service: :changed
+# The minimal, blazing-fast, and infinitely customizable prompt for any shell!
+brew "starship"
 # Organize software neatly under a single directory tree (e.g. /usr/local)
 brew "stow"
 # Opinionated Lua code formatter
