@@ -47,6 +47,7 @@ $hostname\
 $directory\
 [](fg:c2 bg:c3)\
 $git_branch\
+$git_state\
 $git_status\
 [](fg:c3 bg:c4)\
 $nodejs\
@@ -59,6 +60,7 @@ $php\
 $package\
 $docker_context\
 [](fg:c4 bg:c5)\
+$shlvl\
 $jobs\
 $cmd_duration\
 $status\
@@ -202,6 +204,11 @@ style = "fg:t1 bg:c2"
 format = "[ $path ]($style)[$read_only]($read_only_style)"
 read_only = "󰌾"
 read_only_style = "fg:t1 bg:c2"
+# Inside a repo, the repo's own name is bold, so it stays findable after the
+# path has been truncated.
+before_repo_root_style = "fg:t1 bg:c2"
+repo_root_style = "bold fg:t1 bg:c2"
+repo_root_format = "[ $before_root_path]($before_repo_root_style)[$repo_root]($repo_root_style)[$path ]($style)[$read_only]($read_only_style)"
 truncation_length = 3
 truncation_symbol = "…/"
 
@@ -224,6 +231,11 @@ truncation_symbol = "…/"
 symbol = ""
 style = "bg:c3"
 format = "[ $symbol $branch]($style)"
+
+# Mid-rebase / merge / cherry-pick / bisect, with progress where git has it.
+[git_state]
+style = "bold fg:yellow bg:c3"
+format = "[ $state( $progress_current/$progress_total)]($style)"
 
 [git_status]
 conflicted = "=${count}"
@@ -305,6 +317,16 @@ format = '[ $symbol $context ]($style)'
 # c5 -- the darkest stop: what the last command did, and the clock
 # ---------------------------------------------------------------------------
 
+# Only past the gate: a shell inside vifm's :shell or nvim's :terminal. tmux
+# panes would otherwise all count one level deep too -- tmux/.tmux.conf unsets
+# SHLVL for its panes so they start from 1 like a fresh terminal.
+[shlvl]
+disabled = false
+threshold = 2
+symbol = ""
+style = "fg:t5 bg:c5"
+format = "[ $symbol $shlvl]($style)"
+
 [jobs]
 symbol = "󰜎"
 style = "fg:t5 bg:c5"
@@ -319,7 +341,14 @@ format = "[ 󱎫 $duration]($style)"
 disabled = false
 symbol = ""
 style = "fg:red bg:c5"
-format = "[ $symbol $status]($style)"
+format = "[ $symbol $status( $signal_name)]($style)"
+# A failing pipeline shows every stage's code, e.g. "0|1|0"; killed commands
+# show the signal name rather than 130/139.
+pipestatus = true
+pipestatus_separator = "|"
+pipestatus_segment_format = "$status"
+pipestatus_format = "[ $symbol $pipestatus( $signal_name)]($style)"
+recognize_signal_code = true
 
 [time]
 disabled = false

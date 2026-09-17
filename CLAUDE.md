@@ -127,6 +127,15 @@ Non-obvious things learned building this:
 - `starship init bash` replaces `PROMPT_COMMAND`, but stashes the previous value in
   `STARSHIP_PROMPT_COMMAND` and evals it from its own precmd — so `.bashrc`'s
   `history -a; history -c; history -r` sharing keeps working underneath it.
+- **`shlvl` (shown from level 2) needs `set-environment -gu SHLVL` in `tmux/.tmux.conf`.**
+  tmux panes inherit `SHLVL` from the shell that started the server and add one, so without
+  it every pane reads 2 and the gate is useless (verified with tmux 3.6). Nested shells
+  inside vifm's `:shell` / nvim's `:terminal` still count normally. Beware when testing with
+  `zsh -c 'zsh -c ...'`: zsh decrements `SHLVL` when it execs its last command, so a
+  one-command `-c` shows no nesting.
+- `status` has `pipestatus = true`: a failing pipeline shows `0|1|0`, and signals show by
+  name (`130 INT`). `$signal_name` has to be in *both* `format` and `pipestatus_format` —
+  the plain `format` is what a single killed command uses.
 - Verified in the sandbox by downloading the real starship binary and rendering
   `starship prompt` against a throwaway git repo in every state (clean, staged, modified,
   deleted, untracked, non-zero exit, background jobs, outside a repo), for every palette, plus
