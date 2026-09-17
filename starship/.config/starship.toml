@@ -42,12 +42,12 @@ format = """
 $os\
 $username\
 $hostname\
-[](fg:c1 bg:c2)\
+[](fg:c1 bg:c2)\
 $directory\
-[](fg:c2 bg:c3)\
+[](fg:c2 bg:c3)\
 $git_branch\
 $git_status\
-[](fg:c3 bg:c4)\
+[](fg:c3 bg:c4)\
 $nodejs\
 $bun\
 $python\
@@ -56,12 +56,12 @@ $golang\
 $lua\
 $php\
 $package\
-[](fg:c4 bg:c5)\
+[](fg:c4 bg:c5)\
 $jobs\
 $cmd_duration\
 $status\
 $time\
-[](fg:c5)\
+[](fg:c5)\
 $line_break\
 $character"""
 
@@ -196,21 +196,21 @@ trim_at = "."
 # ---------------------------------------------------------------------------
 
 [directory]
-style = "fg:t2 bg:c2"
+style = "fg:t1 bg:c2"
 format = "[ $path ]($style)[$read_only]($read_only_style)"
-read_only = "󰌾 "
-read_only_style = "fg:t2 bg:c2"
+read_only = "󰌾"
+read_only_style = "fg:t1 bg:c2"
 truncation_length = 3
 truncation_symbol = "…/"
 
 [directory.substitutions]
-"Documents" = "󰈙 "
-"Downloads" = " "
-"Music" = " "
-"Pictures" = " "
-"Movies" = " "
-"Developer" = " "
-".config" = " "
+"Documents" = "󰈙"
+"Downloads" = ""
+"Music" = ""
+"Pictures" = ""
+"Movies" = "󰎁"
+"Developer" = "󰚗"
+".config" = ""
 
 
 # ---------------------------------------------------------------------------
