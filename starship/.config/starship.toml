@@ -1,18 +1,28 @@
 # starship prompt -- https://starship.rs
 #
-# Design goal: ONE hue per machine, so a glance at the prompt says which host
-# you are on. Everything that is not the host marker stays greyscale-ish; the
-# only other colour is the git-status icon row.
+# The tokyo-night preset's powerline bar, with its single blue ramp replaced by
+# one ramp per machine. The gradient still runs bright -> dark left to right;
+# only its hue changes per host, so a glance at the bar says where you are.
 #
-#   ▏ 󰀵 mbp ▏ ~/dev/dotfiles ▏  main  1 ?2 ⇡1 ▏  12:32 ▏
+#   ░▒▓ 󰀵 mbp ▓ ~/dev/dotfiles ▓  main  1 ?2 ▓  v22.2.0 ▓  13:44 ▓
 #   ❯
 #
-# The hue lives entirely in the palettes below. `palette` is set to a default
-# here, but at shell start `sh/conf.d/60-starship.sh` rewrites that one line
-# into a generated copy under ~/.cache/starship/ and points $STARSHIP_CONFIG
-# at it -- that is how each host ends up a different colour from one shared
-# file. Switch live with `starship-palette purple`, persist with
-# `starship-palette -w purple`. See CLAUDE.md -> "## starship".
+# Every palette below is generated from one HSL recipe, so all hues read as the
+# same design. At H=222 that recipe reproduces tokyo-night's own ramp (c4 and c5
+# come out identical to the preset's hex, the rest within a couple of points) --
+# the `blue` palette is effectively the preset.
+#
+#   c1  lightest -- the OS/host pill, the brightest thing on the line
+#   c2  vivid    -- the directory pill, and the text colour on the dark stops
+#   c3  dark     -- git
+#   c4  darker   -- toolchain versions
+#   c5  darkest  -- duration / status / jobs / clock
+#   t1  near-black text for the c1 pill, t2 light text for c2, t5 muted for c5
+#
+# `palette` is rewritten per host by sh/conf.d/60-starship.sh into a generated
+# copy under ~/.cache/starship/; this file stays the only one to edit. Switch
+# with `starship-palette purple`, persist with `starship-palette -w purple`.
+# See CLAUDE.md -> "## starship".
 #
 # NOTE: starship has no config includes and does not expand env vars inside
 # style strings (both confirmed against starship 1.26), which is why the
@@ -28,128 +38,168 @@ add_newline = true
 command_timeout = 1000
 
 format = """
-[](host)\
+[░▒▓](c1)\
 $os\
 $username\
 $hostname\
-[](fg:host bg:surface)\
+[](fg:c1 bg:c2)\
 $directory\
+[](fg:c2 bg:c3)\
 $git_branch\
 $git_status\
+[](fg:c3 bg:c4)\
 $nodejs\
+$bun\
 $python\
 $rust\
 $golang\
 $lua\
+$php\
 $package\
+[](fg:c4 bg:c5)\
 $jobs\
 $cmd_duration\
 $status\
 $time\
-[ ](bg:surface)\
-[](fg:surface)\
+[](fg:c5)\
 $line_break\
 $character"""
 
 
 # ---------------------------------------------------------------------------
-# Palettes: one per host. Only the first three colours differ between them --
-# `host` is the pill behind the hostname (and the ❯), `surface` is the dark
-# tint the rest of the bar sits on, `host_text` is the text on the pill.
-# Add a palette here and it immediately shows up in `starship-palette`.
+# Palettes: one ramp per host. Generated, not hand-picked -- see the recipe in
+# the header. Add a palette here and `starship-palette` picks it up with no
+# other change.
 # ---------------------------------------------------------------------------
+
+[palettes.blue]
+c1 = "#a2b1d2"
+c2 = "#759af0"
+c3 = "#384461"
+c4 = "#212736"
+c5 = "#1d2230"
+t1 = "#0b0c0e"
+t2 = "#e9ebf2"
+t5 = "#a3aec8"
 
 [palettes.cyan]
-host = "#4cc3d9"
-host_text = "#062026"
-surface = "#12313a"
-text = "#c4d6da"
-muted = "#6f8d95"
+c1 = "#a2cdd2"
+c2 = "#75e2f0"
+c3 = "#385c61"
+c4 = "#213336"
+c5 = "#1d2e30"
+t1 = "#0b0e0e"
+t2 = "#e9f1f2"
+t5 = "#a3c3c8"
 
 [palettes.green]
-host = "#7ec96a"
-host_text = "#07200d"
-surface = "#15301c"
-text = "#c9d6c5"
-muted = "#78947e"
+c1 = "#a2d2a8"
+c2 = "#75f085"
+c3 = "#38613d"
+c4 = "#213624"
+c5 = "#1d301f"
+t1 = "#0b0e0c"
+t2 = "#e9f2ea"
+t5 = "#a3c8a7"
 
 [palettes.purple]
-host = "#b07de0"
-host_text = "#150a20"
-surface = "#261a36"
-text = "#d1c9dd"
-muted = "#8c80a1"
+c1 = "#c2a2d2"
+c2 = "#c775f0"
+c3 = "#533861"
+c4 = "#2f2136"
+c5 = "#291d30"
+t1 = "#0d0b0e"
+t2 = "#efe9f2"
+t5 = "#bba3c8"
 
 [palettes.amber]
-host = "#e0b04d"
-host_text = "#231803"
-surface = "#332612"
-text = "#dbd2c1"
-muted = "#998b6f"
+c1 = "#d2c1a2"
+c2 = "#f0c375"
+c3 = "#615238"
+c4 = "#362e21"
+c5 = "#30291d"
+t1 = "#0e0d0b"
+t2 = "#f2eee9"
+t5 = "#c8baa3"
 
 [palettes.rose]
-host = "#e0686f"
-host_text = "#250a0d"
-surface = "#331a1d"
-text = "#dcc8ca"
-muted = "#9b7a7e"
+c1 = "#d2a2ac"
+c2 = "#f0758d"
+c3 = "#613840"
+c4 = "#362125"
+c5 = "#301d21"
+t1 = "#0e0b0c"
+t2 = "#f2e9ea"
+t5 = "#c8a3aa"
 
-# Fallback for any machine that has not been assigned a colour yet.
 [palettes.slate]
-host = "#8f9bab"
-host_text = "#12151a"
-surface = "#262a31"
-text = "#c8ccd4"
-muted = "#7e858f"
+c1 = "#b3b8c1"
+c2 = "#a1adc4"
+c3 = "#474b52"
+c4 = "#282a2e"
+c5 = "#242529"
+t1 = "#0c0d0d"
+t2 = "#ecedee"
+t5 = "#b0b3ba"
 
 
 # ---------------------------------------------------------------------------
-# The host pill
+# c1 -- the brightest stop holds what the whole scheme exists to tell you
 # ---------------------------------------------------------------------------
 
 [os]
 disabled = false
-style = "bg:host fg:host_text"
+style = "bg:c1 fg:t1"
 format = "[ $symbol ]($style)"
 
 [os.symbols]
 Macos = "󰀵"
 Arch = "󰣇"
+Artix = "󰣇"
 Debian = "󰣚"
 Ubuntu = "󰕈"
 Fedora = "󰣛"
+CentOS = ""
+Redhat = "󱄛"
+RedHatEnterprise = "󱄛"
 Alpine = ""
+Gentoo = "󰣨"
+Manjaro = ""
+Mint = "󰣭"
+SUSE = ""
+EndeavourOS = ""
+Pop = ""
 Raspbian = "󰐿"
+Android = ""
 Linux = "󰌽"
 Windows = "󰍲"
 
-# Only rendered when root or over SSH (starship's default), so the local
-# machine stays short and remote sessions say who you are.
+# Only rendered when root or over SSH (starship's default), so the laptop stays
+# short and remote sessions say who you are.
 [username]
-style_user = "bg:host fg:host_text"
-style_root = "bg:host fg:host_text bold"
+style_user = "bg:c1 fg:t1"
+style_root = "bg:c1 fg:t1 bold"
 format = "[$user@]($style)"
 
 [hostname]
 ssh_only = false
-# Shown only over SSH; another cue that this is not the laptop. It trails the
-# hostname rather than leading it, so it does not wedge itself between the
-# "user@" and the name.
+# Trails the hostname rather than leading it, so it does not wedge itself
+# between the "user@" and the name.
 ssh_symbol = " "
-style = "bg:host fg:host_text"
+style = "bg:c1 fg:t1"
 format = "[$hostname$ssh_symbol ]($style)"
 trim_at = "."
 
 
 # ---------------------------------------------------------------------------
-# The neutral bar
+# c2 -- directory
 # ---------------------------------------------------------------------------
 
 [directory]
-style = "fg:text bg:surface"
-format = "[ $path]($style)[$read_only]($read_only_style)"
-read_only = " 󰌾"
-read_only_style = "fg:red bg:surface"
+style = "fg:t2 bg:c2"
+format = "[ $path ]($style)[$read_only]($read_only_style)"
+read_only = "󰌾 "
+read_only_style = "fg:t2 bg:c2"
 truncation_length = 3
 truncation_symbol = "…/"
 
@@ -162,46 +212,17 @@ truncation_symbol = "…/"
 "Developer" = " "
 ".config" = " "
 
-[jobs]
-style = "fg:muted bg:surface"
-format = "[ $symbol$number]($style)"
-symbol = "󰜎 "
-
-[cmd_duration]
-min_time = 2000
-style = "fg:muted bg:surface"
-format = "[ 󱎫 $duration]($style)"
-
-[status]
-disabled = false
-style = "fg:red bg:surface"
-format = "[ $symbol$status]($style)"
-symbol = " "
-
-[time]
-disabled = false
-time_format = "%R"
-style = "fg:muted bg:surface"
-format = "[  $time]($style)"
-
-[character]
-success_symbol = "[❯](bold fg:host)"
-error_symbol = "[❯](bold fg:red)"
-vicmd_symbol = "[❮](bold fg:yellow)"
-
 
 # ---------------------------------------------------------------------------
-# git -- the one place colour is allowed, one hue per kind of change
+# c3 -- git. The one place a second colour is allowed: one hue per kind of
+# change, in ANSI names so they follow the terminal theme rather than the ramp.
 # ---------------------------------------------------------------------------
 
 [git_branch]
 symbol = ""
-style = "fg:text bg:surface"
-format = "[ $symbol ](fg:muted bg:surface)[$branch]($style)"
+style = "bg:c3"
+format = "[ $symbol $branch]($style)"
 
-# Each item is its own conditional group, so an unchanged repo prints nothing
-# at all and a dirty one prints only the icons that apply. Swap any icon
-# below freely -- they are plain Nerd Font glyphs, nothing depends on them.
 [git_status]
 conflicted = " ${count}"
 staged = " ${count}"
@@ -215,43 +236,93 @@ ahead = "⇡${count}"
 behind = "⇣${count}"
 diverged = "⇕⇡${ahead_count}⇣${behind_count}"
 up_to_date = ""
+# Each item is its own conditional group, so a clean repo prints nothing at all
+# rather than a row of zeroes.
 format = """\
-([ $conflicted](bold fg:red bg:surface))\
-([ $staged](fg:green bg:surface))\
-([ $modified](fg:yellow bg:surface))\
-([ $renamed](fg:purple bg:surface))\
-([ $deleted](fg:red bg:surface))\
-([ $typechanged](fg:blue bg:surface))\
-([ $untracked](fg:bright-blue bg:surface))\
-([ $stashed](fg:cyan bg:surface))\
-([ $ahead_behind](fg:bright-purple bg:surface))"""
+([ $conflicted](bold fg:red bg:c3))\
+([ $staged](fg:green bg:c3))\
+([ $modified](fg:yellow bg:c3))\
+([ $renamed](fg:purple bg:c3))\
+([ $deleted](fg:red bg:c3))\
+([ $typechanged](fg:blue bg:c3))\
+([ $untracked](fg:bright-blue bg:c3))\
+([ $stashed](fg:cyan bg:c3))\
+([ $ahead_behind](fg:bright-purple bg:c3))\
+[ ](bg:c3)"""
 
 
 # ---------------------------------------------------------------------------
-# Toolchain versions: present, but deliberately dim -- they are context, not
-# the thing you are looking for.
+# c4 -- toolchain versions
 # ---------------------------------------------------------------------------
 
 [nodejs]
-style = "fg:muted bg:surface"
-format = "[  $version]($style)"
+symbol = ""
+style = "fg:c2 bg:c4"
+format = "[ $symbol $version ]($style)"
+
+[bun]
+symbol = ""
+style = "fg:c2 bg:c4"
+format = "[ $symbol $version ]($style)"
 
 [python]
-style = "fg:muted bg:surface"
-format = '[  ${version}(\($virtualenv\))]($style)'
+symbol = ""
+style = "fg:c2 bg:c4"
+format = '[ $symbol ${version}(\($virtualenv\)) ]($style)'
 
 [rust]
-style = "fg:muted bg:surface"
-format = "[  $version]($style)"
+symbol = ""
+style = "fg:c2 bg:c4"
+format = "[ $symbol $version ]($style)"
 
 [golang]
-style = "fg:muted bg:surface"
-format = "[  $version]($style)"
+symbol = ""
+style = "fg:c2 bg:c4"
+format = "[ $symbol $version ]($style)"
 
 [lua]
-style = "fg:muted bg:surface"
-format = "[  $version]($style)"
+symbol = ""
+style = "fg:c2 bg:c4"
+format = "[ $symbol $version ]($style)"
+
+[php]
+symbol = ""
+style = "fg:c2 bg:c4"
+format = "[ $symbol $version ]($style)"
 
 [package]
-style = "fg:muted bg:surface"
-format = "[  $version]($style)"
+symbol = "󰏗"
+style = "fg:c2 bg:c4"
+format = "[ $symbol $version ]($style)"
+
+
+# ---------------------------------------------------------------------------
+# c5 -- the darkest stop: what the last command did, and the clock
+# ---------------------------------------------------------------------------
+
+[jobs]
+symbol = "󰜎"
+style = "fg:t5 bg:c5"
+format = "[ $symbol $number]($style)"
+
+[cmd_duration]
+min_time = 2000
+style = "fg:t5 bg:c5"
+format = "[ 󱎫 $duration]($style)"
+
+[status]
+disabled = false
+symbol = ""
+style = "fg:red bg:c5"
+format = "[ $symbol $status]($style)"
+
+[time]
+disabled = false
+time_format = "%R"
+style = "fg:t5 bg:c5"
+format = "[  $time ]($style)"
+
+[character]
+success_symbol = "[❯](bold fg:c2)"
+error_symbol = "[❯](bold fg:red)"
+vicmd_symbol = "[❮](bold fg:yellow)"

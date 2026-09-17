@@ -53,14 +53,31 @@ because nothing here creates them.
 
 `starship/.config/starship.toml` + `starship/.config/sh/conf.d/60-starship.sh`.
 
-The prompt is deliberately near-monochrome apart from two things: a coloured pill holding
-`<os icon> [user@]host`, and the git-status icons. The pill's hue — plus the `❯` and the dark
-tint the rest of the bar sits on — is **one colour per machine**. That is the entire point of
-the setup: it replaces the old "whole prompt is cyan/green/purple depending on the host" PS1,
-which the stock starship presets destroy by colouring everything.
+The layout is the stock **tokyo-night preset's powerline bar**, with its single blue ramp
+replaced by **one ramp per machine**. The gradient still runs bright → dark left to right; only
+its hue changes per host, which is what replaces the old "whole prompt is cyan/green/purple
+depending on the host" PS1.
 
-Palettes shipped: `cyan`, `green`, `purple`, `amber`, `rose`, and `slate` (the neutral
-fallback for a machine that has not been assigned one).
+Every palette is generated from one HSL recipe rather than hand-picked, so all hues read as the
+same design. At hue 222 that recipe reproduces tokyo-night's own stops (c4 and c5 come out
+identical to the preset's hex, the rest within a couple of points) — the `blue` palette is
+effectively the preset, which is why the recipe was chosen. Palettes shipped: `blue`, `cyan`,
+`green`, `purple`, `amber`, `rose`, and `slate` (a desaturated fallback for a machine that has
+not been assigned one).
+
+Ramp stops, and what sits on each:
+
+| key | role | segment |
+|-----|------|---------|
+| `c1` | lightest | OS icon + `[user@]host` — the brightest thing on the line, on purpose |
+| `c2` | vivid | directory; also the text colour on every dark stop, and the `❯` |
+| `c3` | dark | git branch + status |
+| `c4` | darker | toolchain versions |
+| `c5` | darkest | jobs, command duration, exit status, clock |
+| `t1` / `t2` / `t5` | text | near-black on `c1`, light on `c2`, muted on `c5` |
+
+The palette blocks are generated; regenerate rather than hand-editing them if the recipe ever
+changes (the generator is a few lines of `colorsys` — see the file header for the stop values).
 
 **Why the colour switch is indirect:** starship has no config includes and does not expand
 environment variables inside style strings — both confirmed against starship 1.26 by testing
@@ -82,35 +99,39 @@ Palette selection, highest precedence first: an already-exported `$STARSHIP_HOST
 the untracked one-word file `~/.config/starship-host` → the hostname `case` table inside
 `60-starship.sh` (tracked, so filling it in once covers every machine that syncs this repo) →
 `slate`. Per host the quickest setup is `starship-palette -w green`; without `-w` it switches
-only the current shell, which is how to compare colours side by side.
+only the current shell, which is how to compare ramps side by side.
 
 Non-obvious things learned building this:
 
 - **A palette *name* is not a colour name.** `fg:rose` does not resolve just because
-  `[palettes.rose]` exists — a palette maps its own keys (`host`, `host_text`, `surface`,
-  `text`, `muted`). An unresolvable colour makes starship silently drop the *whole* style,
-  which here showed up as one segment losing its background and punching a hole in the bar.
-  Use palette keys or plain ANSI names, and re-render after touching styles.
+  `[palettes.rose]` exists — a palette maps only its own keys (`c1`…`c5`, `t1`, `t2`, `t5`).
+  An unresolvable colour makes starship silently drop the *whole* style, which here showed up
+  as one segment losing its background and punching a hole in the bar. Use ramp keys or plain
+  ANSI names, and re-render after touching styles.
 - Conversely, palette names do **not** shadow ANSI colour names: with `palette = "cyan"`
   active, `fg:cyan` still renders ANSI cyan (verified). The git-status icons deliberately use
   ANSI names (`green`, `yellow`, `red`, `bright-blue`, …) so they follow the terminal theme
-  instead of being pinned to hex.
-- Each git-status item is its own conditional group — `([ $staged](fg:green bg:surface))` — so
-  a clean repo prints nothing at all rather than a row of zeroes. Leading spaces live *inside*
-  those groups and no module format ends with a trailing space; mixing the two conventions is
-  what produces double gaps on clean repos.
-- The pill's hex colours need truecolor. `tmux/.tmux.conf` sets no `default-terminal` and no
+  instead of being pinned to the ramp.
+- Each git-status item is its own conditional group — `([ $staged](fg:green bg:c3))` — so a
+  clean repo prints nothing rather than a row of zeroes.
+- **Empty segments do not disappear, they taper.** The powerline separators live in the root
+  `format`, not inside the modules, so outside a git repo (or with no toolchain detected) the
+  `c3`/`c4` stops collapse to bare chevrons rather than vanishing. That is inherited from the
+  tokyo-night preset and reads as an intentional fade; making them truly conditional is not
+  expressible, because starship's `(...)` groups have no "else" branch to supply the
+  alternative `fg:c2 bg:c4` separator.
+- The ramp is hex, so it needs truecolor. `tmux/.tmux.conf` sets no `default-terminal` and no
   `terminal-features ",*:RGB"`, so inside tmux this leans on tmux's own RGB auto-detection
-  from the outer terminal. If the pill ever looks washed out inside tmux but fine outside it,
+  from the outer terminal. If the bar ever looks washed out inside tmux but fine outside it,
   that pair of settings is the first thing to try.
 - `starship init bash` replaces `PROMPT_COMMAND`, but stashes the previous value in
   `STARSHIP_PROMPT_COMMAND` and evals it from its own precmd — so `.bashrc`'s
   `history -a; history -c; history -r` sharing keeps working underneath it.
 - Verified in the sandbox by downloading the real starship binary and rendering
   `starship prompt` against a throwaway git repo in every state (clean, staged, modified,
-  deleted, untracked, non-zero exit, background jobs), for every palette, plus sourcing
-  `60-starship.sh` in real `bash -c` and `zsh -f -c` shells. `starship print-config` is the
-  fast "does this even parse" check — it warns about unknown keys and missing palettes.
+  deleted, untracked, non-zero exit, background jobs, outside a repo), for every palette, plus
+  sourcing `60-starship.sh` in real `bash -c` and `zsh -f -c` shells. `starship print-config`
+  is the fast "does this even parse" check — it warns about unknown keys and missing palettes.
 
 ## vifm — image/video previews
 
