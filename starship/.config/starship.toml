@@ -37,6 +37,7 @@ palette = "slate"
 add_newline = true
 command_timeout = 1000
 
+# 
 format = """
 [░▒▓](c1)\
 $os\
@@ -225,14 +226,14 @@ style = "bg:c3"
 format = "[ $symbol $branch]($style)"
 
 [git_status]
-conflicted = " ${count}"
-staged = " ${count}"
-modified = " ${count}"
-renamed = "󰑕 ${count}"
-deleted = " ${count}"
-typechanged = " ${count}"
-untracked = " ${count}"
-stashed = " ${count}"
+conflicted = "=${count}"
+staged = "+${count}"
+modified = "!${count}"
+renamed = "󰑕${count}"
+deleted = "x${count}"
+typechanged = "${count}"
+untracked = "?${count}"
+stashed = "${count}"
 ahead = "⇡${count}"
 behind = "⇣${count}"
 diverged = "⇕⇡${ahead_count}⇣${behind_count}"
