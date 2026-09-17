@@ -189,7 +189,7 @@ ssh_only = false
 # between the "user@" and the name.
 ssh_symbol = "󰢩"
 style = "bg:c1 fg:t1"
-format = "[$ssh_symbol$hostname]($style)"
+format = "[$hostname$ssh_symbol]($style)"
 trim_at = "."
 
 
