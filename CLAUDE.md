@@ -136,16 +136,6 @@ Non-obvious things learned building this:
 - `status` has `pipestatus = true`: a failing pipeline shows `0|1|0`, and signals show by
   name (`130 INT`). `$signal_name` has to be in *both* `format` and `pipestatus_format` —
   the plain `format` is what a single killed command uses.
-- **Transient prompt (zsh only)**: `starship/.config/zsh/conf.d/60-starship-transient.zsh`
-  collapses each submitted prompt to `❯ <command>`. The short prompt is
-  `starship prompt --profile transient` (a `[profiles]` entry in `starship.toml`, supported
-  by 1.26) rather than a hand-built `%F{...}` string, so it keeps the host colour, goes red
-  after a failure, and gets starship's own `%{…%}` width wrapping (`starship module` output
-  does *not* get that wrapping). It wraps an existing `zle-line-init` instead of replacing it
-  — Debian/Ubuntu's `/etc/zsh/zshrc` defines one for keypad mode. The guard checks for
-  `prompt_starship_precmd`, starship's actual function name. Tested live in tmux: Enter,
-  multi-line input, Ctrl-C on a running and a half-typed command, Ctrl-D out of a nested
-  shell. bash has no equivalent hook, so bash keeps the full bar.
 - Verified in the sandbox by downloading the real starship binary and rendering
   `starship prompt` against a throwaway git repo in every state (clean, staged, modified,
   deleted, untracked, non-zero exit, background jobs, outside a repo), for every palette, plus
