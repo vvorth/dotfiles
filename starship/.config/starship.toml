@@ -360,3 +360,13 @@ format = "[  $time ]($style)"
 success_symbol = "[❯](bold fg:c2)"
 error_symbol = "[❯](bold fg:red)"
 vicmd_symbol = "[❮](bold fg:yellow)"
+
+
+# ---------------------------------------------------------------------------
+# Transient prompt: what an already-run prompt collapses to in scrollback.
+# Rendered by zsh/conf.d/60-starship-transient.zsh via `--profile transient`,
+# so it keeps the host's colour and turns red after a failed command.
+# ---------------------------------------------------------------------------
+
+[profiles]
+transient = "$character"
