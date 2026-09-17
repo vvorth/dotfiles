@@ -187,9 +187,9 @@ format = "[$user@]($style)"
 ssh_only = false
 # Trails the hostname rather than leading it, so it does not wedge itself
 # between the "user@" and the name.
-ssh_symbol = " "
+ssh_symbol = "󰢩"
 style = "bg:c1 fg:t1"
-format = "[$hostname$ssh_symbol ]($style)"
+format = "[$ssh_symbol$hostname]($style)"
 trim_at = "."
 
 
