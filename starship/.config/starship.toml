@@ -56,6 +56,7 @@ $golang\
 $lua\
 $php\
 $package\
+$docker_context\
 [](fg:c4 bg:c5)\
 $jobs\
 $cmd_duration\
@@ -295,7 +296,10 @@ symbol = "󰏗"
 style = "fg:c2 bg:c4"
 format = "[ $symbol $version ]($style)"
 
-
+[docker_context]
+symbol = ""
+style = "fg:c2 bg:c4"
+format = '[ $symbol $context ]($style)'
 # ---------------------------------------------------------------------------
 # c5 -- the darkest stop: what the last command did, and the clock
 # ---------------------------------------------------------------------------
