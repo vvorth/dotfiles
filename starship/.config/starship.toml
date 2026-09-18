@@ -34,7 +34,7 @@
 # (`palette = "..."` at column 0) -- the sed in that script matches on it.
 palette = "slate"
 
-add_newline = true
+add_newline = false
 command_timeout = 1000
 
 # 
