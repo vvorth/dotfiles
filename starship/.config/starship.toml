@@ -70,7 +70,7 @@ command_timeout = 1000
 # $character"""
 
 format = """
-[](fg:c2)\
+[](fg:c1)\
 $os\
 $username\
 $hostname\
