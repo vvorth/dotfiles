@@ -38,19 +38,50 @@ add_newline = true
 command_timeout = 1000
 
 # 
+# format = """
+# [░▒▓](c1)\
+# $os\
+# $username\
+# $hostname\
+# [](fg:c1 bg:c2)\
+# $directory\
+# [](fg:c2 bg:c3)\
+# $git_branch\
+# $git_state\
+# $git_status\
+# [](fg:c3 bg:c4)\
+# $nodejs\
+# $bun\
+# $python\
+# $rust\
+# $golang\
+# $lua\
+# $php\
+# $package\
+# $docker_context\
+# [](fg:c4 bg:c5)\
+# $shlvl\
+# $jobs\
+# $cmd_duration\
+# $status\
+# $time\
+# [](fg:c5)\
+# $line_break\
+# $character"""
+
 format = """
-[░▒▓](c1)\
+[ ](bg:c2)\
 $os\
 $username\
 $hostname\
-[](fg:c1 bg:c2)\
+[▌](fg:c1 bg:c2)\
 $directory\
-[](fg:c2 bg:c3)\
+[▌](fg:c2 bg:c3)\
 $git_branch\
 $git_state\
 $git_status\
-[](fg:c3 bg:c4)\
-$nodejs\
+[▌](fg:c3 bg:c4)\
+[$nodejs\
 $bun\
 $python\
 $rust\
@@ -58,16 +89,15 @@ $golang\
 $lua\
 $php\
 $package\
-$docker_context\
-[](fg:c4 bg:c5)\
+$docker_context](fg:c2 bg:c4)\
+[▌](fg:c4 bg:c5)\
 $shlvl\
 $jobs\
 $cmd_duration\
 $status\
-$time\
-[](fg:c5)\
-$line_break\
-$character"""
+[▌](fg:c5)\
+$character\
+"""
 
 
 # ---------------------------------------------------------------------------
@@ -152,7 +182,7 @@ t5 = "#b0b3ba"
 # ---------------------------------------------------------------------------
 
 [os]
-disabled = false
+disabled = true
 style = "bg:c1 fg:t1"
 format = "[ $symbol ]($style)"
 
@@ -201,7 +231,7 @@ trim_at = "."
 
 [directory]
 style = "fg:t1 bg:c2"
-format = "[ $path ]($style)[$read_only]($read_only_style)"
+format = "[$path]($style)[ $read_only]($read_only_style)"
 read_only = "󰌾"
 read_only_style = "fg:t1 bg:c2"
 # Inside a repo, the repo's own name is bold, so it stays findable after the
@@ -235,7 +265,7 @@ format = "[ $symbol $branch]($style)"
 # Mid-rebase / merge / cherry-pick / bisect, with progress where git has it.
 [git_state]
 style = "bold fg:yellow bg:c3"
-format = "[ $state( $progress_current/$progress_total)]($style)"
+format = "[$state( $progress_current/$progress_total)]($style)"
 
 [git_status]
 conflicted = "=${count}"
@@ -270,49 +300,34 @@ format = """\
 # ---------------------------------------------------------------------------
 
 [nodejs]
-symbol = ""
-style = "fg:c2 bg:c4"
-format = "[ $symbol $version ]($style)"
+symbol = ""
+format = "$symbol $version"
 
 [bun]
-symbol = ""
-style = "fg:c2 bg:c4"
-format = "[ $symbol $version ]($style)"
+symbol = ""
 
 [python]
-symbol = ""
-style = "fg:c2 bg:c4"
-format = '[ $symbol ${version}(\($virtualenv\)) ]($style)'
+symbol = ""
+format = '$symbol ${version}(\($virtualenv\))'
 
 [rust]
-symbol = ""
-style = "fg:c2 bg:c4"
-format = "[ $symbol $version ]($style)"
+symbol = "󱘗"
 
 [golang]
-symbol = ""
-style = "fg:c2 bg:c4"
-format = "[ $symbol $version ]($style)"
+symbol = ""
 
 [lua]
-symbol = ""
-style = "fg:c2 bg:c4"
-format = "[ $symbol $version ]($style)"
+symbol = ""
 
 [php]
-symbol = ""
-style = "fg:c2 bg:c4"
-format = "[ $symbol $version ]($style)"
+symbol = ""
 
 [package]
 symbol = "󰏗"
-style = "fg:c2 bg:c4"
-format = "[ $symbol $version ]($style)"
 
 [docker_context]
 symbol = ""
-style = "fg:c2 bg:c4"
-format = '[ $symbol $context ]($style)'
+format = '$symbol $context'
 # ---------------------------------------------------------------------------
 # c5 -- the darkest stop: what the last command did, and the clock
 # ---------------------------------------------------------------------------
@@ -320,6 +335,9 @@ format = '[ $symbol $context ]($style)'
 # Only past the gate: a shell inside vifm's :shell or nvim's :terminal. tmux
 # panes would otherwise all count one level deep too -- tmux/.tmux.conf unsets
 # SHLVL for its panes so they start from 1 like a fresh terminal.
+[sudo]
+symbol = ""
+
 [shlvl]
 disabled = false
 threshold = 2
