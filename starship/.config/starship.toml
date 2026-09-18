@@ -68,6 +68,7 @@ command_timeout = 1000
 # [](fg:c5)\
 # $line_break\
 # $character"""
+# ░▒▓▌
 
 format = """
 [](fg:c1)\
@@ -338,36 +339,36 @@ disabled = false
 threshold = 2
 symbol = ""
 style = "fg:t5 bg:c5"
-format = "[ $symbol $shlvl]($style)"
+format = "[ $symbol$shlvl]($style)"
 
 [jobs]
 symbol = "󰜎"
 style = "fg:t5 bg:c5"
-format = "[ $symbol $number]($style)"
+format = "[ $symbol$number]($style)"
 
 [cmd_duration]
 min_time = 2000
 style = "fg:t5 bg:c5"
-format = "[ 󱎫 $duration]($style)"
+format = "[ 󱎫$duration]($style)"
 
 [status]
 disabled = false
 symbol = ""
 style = "fg:red bg:c5"
-format = "[ $symbol $status( $signal_name)]($style)"
+format = "[ $symbol$status( $signal_name)]($style)"
 # A failing pipeline shows every stage's code, e.g. "0|1|0"; killed commands
 # show the signal name rather than 130/139.
 pipestatus = true
 pipestatus_separator = "|"
 pipestatus_segment_format = "$status"
-pipestatus_format = "[ $symbol $pipestatus( $signal_name)]($style)"
+pipestatus_format = "[ $symbol$pipestatus( $signal_name)]($style)"
 recognize_signal_code = true
 
 [time]
 disabled = false
 time_format = "%R"
 style = "fg:t5 bg:c5"
-format = "[  $time ]($style)"
+format = "[ $time ]($style)"
 
 [character]
 success_symbol = "[❯](bold fg:c2)"
