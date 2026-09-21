@@ -121,12 +121,32 @@ t1 = "#0b0e0e"
 t2 = "#e9f1f2"
 t5 = "#a3c3c8"
 
+[palettes.neon-cyan]
+c1 = "#7ffefd"
+c2 = "#00fefc"
+c3 = "#004C4B"
+c4 = "#003232"
+c5 = "#001919"
+t1 = "#0b0e0e"
+t2 = "#e9f1f2"
+t5 = "#a3c3c8"
+
 [palettes.green]
 c1 = "#a2d2a8"
 c2 = "#75f085"
 c3 = "#38613d"
 c4 = "#213624"
 c5 = "#1d301f"
+t1 = "#0b0e0c"
+t2 = "#e9f2ea"
+t5 = "#a3c8a7"
+
+[palettes.light-green]
+c1 = "#bcf4bc"
+c2 = "#90ee90"
+c3 = "#2b472b"
+c4 = "#1c2f1c"
+c5 = "#0e170e"
 t1 = "#0b0e0c"
 t2 = "#e9f2ea"
 t5 = "#a3c8a7"
@@ -256,7 +276,7 @@ truncation_symbol = "…/"
 [git_branch]
 symbol = ""
 style = "bg:c3"
-format = "[$symbol $branch]($style)"
+format = "[ $symbol $branch]($style)"
 
 # Mid-rebase / merge / cherry-pick / bisect, with progress where git has it.
 [git_state]
@@ -288,7 +308,7 @@ format = """\
 ([ $untracked](fg:bright-blue bg:c3))\
 ([ $stashed](fg:cyan bg:c3))\
 ([ $ahead_behind](fg:bright-purple bg:c3))\
-[](bg:c3)"""
+[ ](bg:c3)"""
 
 
 # ---------------------------------------------------------------------------
