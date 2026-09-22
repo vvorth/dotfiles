@@ -21,6 +21,11 @@ return {
         -- LSP servers / linters can also go in this list — this plugin
         -- installs anything Mason knows about, not just formatters
         "tree-sitter-cli",
+        "yaml-language-server",
+        "bash-language-server",
+        "shellcheck",
+        "basedpyright",
+        "lua-language-server"
       },
       auto_update = false, -- set true if you want it to also keep tools up to date on startup
       run_on_start = true,
