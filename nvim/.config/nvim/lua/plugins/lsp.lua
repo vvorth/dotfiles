@@ -56,6 +56,11 @@ return {
         end
         vim.notify("Completion auto-popup: " .. (vim.g.blink_auto_show and "ON" or "OFF"))
       end, { desc = "Toggle completion auto-popup" })
+      vim.keymap.set({ "n" }, "<leader>cd", function()
+        local on = not vim.diagnostic.is_enabled()
+        vim.diagnostic.enable(on)
+        vim.notify("Diagnostics: " .. (on and "ON" or "OFF"))
+      end, { desc = "Toggle diagnostics" })
     end,
   },
 
