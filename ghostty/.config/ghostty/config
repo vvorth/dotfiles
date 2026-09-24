@@ -19,6 +19,15 @@ macos-titlebar-style = transparent
 # macos-titlebar-style = hidden
 copy-on-select = clipboard
 
+# Over SSH, remote hosts usually have no terminfo for TERM=xterm-ghostty
+# (broken backspace/colours, "unknown terminal type"). ssh-terminfo installs
+# it on the remote on first connect; ssh-env falls back to xterm-256color and
+# forwards COLORTERM etc. when that isn't possible. Needs Ghostty >= 1.2 and
+# its shell integration, i.e. only for `ssh` typed in a Ghostty-launched
+# shell -- inside tmux TERM is already tmux-256color, so no issue there.
+# Features not listed keep their defaults (cursor, sudo, title stay on).
+shell-integration-features = ssh-env,ssh-terminfo
+
 # keybind = shift+up=scroll_page_lines:-20
 # keybind = shift+down=scroll_page_lines:20
 keybind = shift+up=scroll_page_lines:-1
