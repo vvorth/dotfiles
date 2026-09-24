@@ -58,10 +58,15 @@ vim.opt.wildignore:append({ "*.o", "*.pyc", "*/.git/*", "*/node_modules/*" }) --
 -- a second Tab (once it's ambiguous) shows the full popup list
 vim.opt.wildmode = "longest:full,full"
 
--- show url instead of vim.ui.open
-vim.ui.open = function(path)
-  vim.notify("URL: " .. path)
-  return {}, nil
+-- Over SSH, opening a browser/viewer on the remote host is useless (or just
+-- errors), so `gx` shows the target instead. Local sessions keep the stock
+-- vim.ui.open (open/xdg-open). Return nil, not a table: `gx` calls
+-- :wait() on whatever comes back, and {} has no such method.
+if vim.env.SSH_TTY or vim.env.SSH_CONNECTION then
+  vim.ui.open = function(path)
+    vim.notify("Open target: " .. path)
+    return nil, nil
+  end
 end
 
 -- treesitter folds

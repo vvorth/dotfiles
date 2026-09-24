@@ -1,8 +1,11 @@
 -- ~/.config/nvim/lua/config/keymaps.lua
+--
+-- A which-key spec, not a list of vim.keymap.set calls: plugins/which-key.lua
+-- passes this table as `opts.spec`, so which-key registers the groups and
+-- mappings when it loads on VeryLazy. Calling require("which-key") here
+-- instead would force-load it during startup.
 
-local wk = require("which-key")
-
-wk.add({
+return {
   -- register the groups first (this is what gives you the labeled headers)
   { "<leader>f", group = "File", icon = { icon = "󰈞 " } },
   { "<leader>b", group = "Buffer", icon = { icon = "󰓩 " } },
@@ -41,4 +44,4 @@ wk.add({
 
   -- Quit
   { "<leader>qq", "<cmd>quitall<cr>", desc = "Quit All", icon = { icon = "󰗼 " } },
-})
+}

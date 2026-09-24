@@ -4,6 +4,7 @@ return {
   "folke/which-key.nvim",
   event = "VeryLazy",
   opts = {
+    spec = require("config.keymaps"), -- groups + leader mappings, see that file
     preset = "modern", -- "classic", "modern", or "helix" layout preset
     delay = 500, -- ms to wait before popup shows (lower = snappier, more intrusive)
     win = {
