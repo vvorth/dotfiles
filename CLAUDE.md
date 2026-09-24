@@ -6,8 +6,8 @@ changes, especially to `vifm/`, `tmux/`, or the shared shell config.
 
 ## Layout: GNU Stow packages
 
-Every top-level directory (`bash/`, `zsh/`, `nvim/`, `vifm/`, `tmux/`, `screen/`, `vim/`,
-`ghostty/`, `iterm2/`, `linearmouse/`) is a Stow "package" whose contents mirror `$HOME`
+Every top-level directory (`bash/`, `zsh/`, `fzf/`, `starship/`, `nvim/`, `vifm/`, `tmux/`,
+`screen/`, `vim/`, `ghostty/`, `iterm2/`, `linearmouse/`) is a Stow "package" whose contents mirror `$HOME`
 exactly (e.g. `vifm/.config/vifm/vifmrc` → `~/.config/vifm/vifmrc`). `install.sh` wraps
 `stow`:
 
@@ -29,15 +29,24 @@ target (the stow-dir's parent) is wrong for this layout.
 
 New package checklist: create `<name>/<path-mirroring-$HOME>`, then `./install.sh -R <name>`.
 
+Moving a file between packages (as `40-fzf.sh` moved `bash/` → `fzf/`): on a machine stowed
+before the move, the old symlink dangles. Just stow the new package — `./install.sh fzf` —
+and stow replaces the dangling link itself, since it points into the stow dir. `-R` on the
+*old* package does **not** clean it up (both verified against a throwaway `$HOME`).
+
 ## Shared shell config: `sh/conf.d`
 
 Both `bash/.bashrc` and `zsh/.zshrc` source, in order:
 1. `~/.aliases` (from `bash/.aliases`, shared by both shells)
 2. every `*.sh` in `${XDG_CONFIG_HOME:-$HOME/.config}/sh/conf.d/` — a shell-agnostic drop-in
    dir. **Any package can contribute a file here**, not just `bash/`: e.g.
-   `bash/.config/sh/conf.d/40-fzf.sh` sets up fzf, `nvim/.config/sh/conf.d/50-nvim.sh` aliases
-   `vi`/`vim` → `nvim` and sets `$EDITOR`/`$MANPAGER`, `starship/.config/sh/conf.d/60-starship.sh`
-   picks this machine's prompt colour and runs `starship init`. Use this when a package's
+   `fzf/.config/sh/conf.d/40-fzf.sh` sets up fzf (its own package, so it works with either
+   shell's package), `nvim/.config/sh/conf.d/50-nvim.sh` aliases `vi`/`vim` → `nvim` and sets
+   `$EDITOR`/`$VISUAL`/`$MANPAGER`, `starship/.config/sh/conf.d/60-starship.sh` picks this
+   machine's prompt colour and runs `starship init`. Convention: a conf.d file whose tool is
+   missing bails out with `command -v <tool> >/dev/null 2>&1 || return 0` first (works in
+   both shells, since the file is sourced) — `50-nvim.sh` does this so `EDITOR=nvim` never
+   lands on a host without nvim and breaks `git commit`. Use this when a package's
    shell integration should apply regardless of which shell is running.
 3. shell-specific conf.d (`bash/conf.d/*.sh` or `zsh/conf.d/*.zsh`) for things that must be
    bash-only or zsh-only.
@@ -120,10 +129,9 @@ Non-obvious things learned building this:
   tokyo-night preset and reads as an intentional fade; making them truly conditional is not
   expressible, because starship's `(...)` groups have no "else" branch to supply the
   alternative `fg:c2 bg:c4` separator.
-- The ramp is hex, so it needs truecolor. `tmux/.tmux.conf` sets no `default-terminal` and no
-  `terminal-features ",*:RGB"`, so inside tmux this leans on tmux's own RGB auto-detection
-  from the outer terminal. If the bar ever looks washed out inside tmux but fine outside it,
-  that pair of settings is the first thing to try.
+- The ramp is hex, so it needs truecolor. Inside tmux that comes from the `terminal-features
+  ... :RGB` lines in `tmux/.tmux.conf` (see the tmux section). If the bar ever looks washed out
+  inside tmux but fine outside it, check the outer terminal's `$TERM` is in that list.
 - `starship init bash` replaces `PROMPT_COMMAND`, but stashes the previous value in
   `STARSHIP_PROMPT_COMMAND` and evals it from its own precmd — so `.bashrc`'s
   `history -a; history -c; history -r` sharing keeps working underneath it.
@@ -200,9 +208,26 @@ undersell this):
 
 ## tmux
 
-`tmux/.tmux.conf`: prefix is `C-a` (not default `C-b`), `base-index 1`, `escape-time 0` (avoids
-the classic "ESC feels laggy in nvim" issue), `focus-events on` (for nvim). For image previews
-(yazi *and* vifm+chafa):
+`tmux/.tmux.conf`: prefix is `C-a` (not default `C-b`; `C-a C-a` is last-window, `C-a a`
+sends a literal `C-a`), `base-index 1`, `escape-time 0` (avoids the classic "ESC feels laggy
+in nvim" issue), `focus-events on` (for nvim), `C-h/j/k/l` pane moves shared with nvim via
+vim-tmux-navigator (the `is_vim` bindings here are the tmux half of that plugin — both halves
+are needed).
+
+Terminal/colour: `default-terminal` is `tmux-256color`, falling back to `screen-256color`
+when `infocmp` can't find it (older macOS system terminfo lacks it). `terminal-features` adds
+`RGB:usstyle:clipboard` **per outer terminal** (`xterm-256color` — which is what iTerm2
+reports — `xterm-ghostty`, `xterm-kitty`, `alacritty`, `wezterm`), deliberately not `*`, so a
+bare Linux console isn't forced into truecolor. Add a line there for any new terminal.
+
+Copy mode: `mode-keys vi` (`v` select, `C-v` block, `y` yank) plus `set-clipboard on`, so every
+tmux copy, and OSC 52 from programs inside tmux (nvim over SSH), reaches the system clipboard.
+
+Zoom banner: an `after-resize-pane` hook shows the "MAXIMIZED" border only on the zoomed
+window. It must use `set -w`; the original `set -g` leaked the banner onto every other split
+window (reproduced and the fix verified on tmux 3.6 with `tmux -L <socket> -f <file>`).
+
+For image previews (yazi *and* vifm+chafa):
 
 ```tmux
 set -g allow-passthrough on
@@ -222,13 +247,34 @@ forwarding — see `vifm-image-previews.md`.
 Hand-built LazyVim-alike (not the LazyVim distro) on top of `lazy.nvim`. Ground truth is
 `nvim/.config/nvim/lua/plugins/*.lua` (one file per plugin) and `lua/config/*.lua`
 (`options.lua`, `keymaps.lua`, `autocmds.lua`, `lazy.lua` for the bootstrap). Active plugins:
-noice (cmdline popup), nvim-cmp-backed cmdline completion, which-key, treesitter (+ native fold
-via `foldexpr`), conform (formatting), mason, nvim-tree, ultimate-autopair,
-render-markdown, snacks-scroll (smooth scrolling), vim-sleuth, icons.
+noice (cmdline popup), which-key, treesitter (+ native fold via `foldexpr`), conform
+(formatting), mason + mason-tool-installer, snacks (`snacks-scroll.lua` — despite the name it
+configures all of snacks: scroll, picker, explorer, notifier, indent, image, terminal),
+lualine, mini.icons (mocking nvim-web-devicons), render-markdown + markdown-table-wrap,
+ultimate-autopair, vim-sleuth, vim-tmux-navigator.
 
-`nvim/.config/nvim/lua/plugins/wilder.lua` is present but `enabled = false` — deliberately kept
-around disabled rather than deleted, in favor of native `wildmenu`/`wildoptions=pum` configured
-in `options.lua`.
+Not active, despite files existing: `wilder.lua` is `enabled = false` (kept in favor of native
+`wildmenu`/`wildoptions=pum` in `options.lua`); `nvim-tree.lua` is a `return {}` stub with the
+old config commented out (snacks' explorer replaced it on `<leader>e`). **There is no LSP and
+no completion plugin yet** — noice's `cmp.entry.get_documentation` override is inert.
+
+Load-order things that are easy to break:
+- **`config/keymaps.lua` is a which-key spec, not code**: it `return`s a table that
+  `plugins/which-key.lua` passes as `opts.spec`, and `init.lua` does not require it. Calling
+  `require("which-key")` at top level anywhere forces which-key to load during startup instead
+  of on `VeryLazy` (verified via lazy's `_.loaded` reason: it was `require` from keymaps.lua).
+  which-key creates the mappings a tick after it loads, so a headless check has to
+  `doautocmd User VeryLazy` and then `vim.defer_fn` before probing `maparg`.
+- **nvim-treesitter's `main` branch does not support lazy-loading** (its README), so it is
+  `lazy = false` with everything in `config`. Its `install()` already skips installed parsers.
+  `markdown_inline` is required by render-markdown; the parser list also covers what conform
+  formats. The `FileType` hook only sets the treesitter `indentexpr` when
+  `vim.treesitter.start` actually succeeded, so filetypes without a parser keep their normal
+  indent. Installing parsers on `main` needs the `tree-sitter` CLI (mason installs it).
+- **`vim.ui.open` is only overridden over SSH** (in `options.lua`): it `vim.notify`s the target
+  instead of opening it. Locally `gx` uses the stock opener. An override must return `nil`,
+  not `{}` — nvim's `gx` calls `:wait()` on the return value, and the old `{}` made every `gx`
+  throw "attempt to call method 'wait'".
 
 `neovim-manual-setup.md` (repo root) is the build journal for all of this — it says at the top
 that it's "a point-in-time journal, not living documentation" and may drift from the actual
@@ -242,8 +288,14 @@ problem solved more thoroughly for vifm/chafa above.
 
 ## ghostty
 
-`ghostty/.config/ghostty/config`: Selenized Dark theme, `macos-titlebar-style = tabs` (custom
-tab bar in the title bar). **Known upstream bug**: this setting is squished/barely-visible on
+`ghostty/.config/ghostty/config`: Selenized Dark theme, `macos-titlebar-style = transparent`
+(`tabs` and `hidden` are kept commented out next to it).
+`shell-integration-features = ssh-env,ssh-terminfo` makes `ssh` from a Ghostty shell install
+Ghostty's terminfo on the remote (or fall back to `xterm-256color`), so remote hosts don't
+choke on `TERM=xterm-ghostty`; needs Ghostty ≥ 1.2, and doesn't apply inside tmux (TERM there
+is already `tmux-256color`). Listing features only adds them; unlisted ones keep defaults.
+
+**Known upstream bug with `macos-titlebar-style = tabs`** (why it's not the active value): it is squished/barely-visible on
 macOS 26/27 in some Ghostty versions — fixed for the original "tiny box next to +" symptom in
 Ghostty 1.2.3, but a *different* regression on macOS 26/27 was reported against a 1.3.2-main
 nightly (`ghostty-org/ghostty#13066`) and fixed by PR #13069, which **had not reached a stable
@@ -265,7 +317,7 @@ the app and re-export, or edit narrowly with a plist-aware tool.
 Both present but essentially unmodified upstream sample configs (`screen/.screenrc` is GNU
 screen's own example file almost verbatim; `vim/.vimrc` is ~18 lines of basic
 options/colorscheme). Not actively developed — `nvim/` is where the real editor config lives
-now (`vim/.config/sh/conf.d/50-nvim.sh`, contributed by the `nvim` package, aliases `vi`/`vim` →
+now (`nvim/.config/sh/conf.d/50-nvim.sh`, contributed by the `nvim` package, aliases `vi`/`vim` →
 `nvim` globally).
 
 ## Brewfile — known gap
@@ -293,3 +345,15 @@ assuming either way before editing `Brewfile`.
   parsing, then removing them again. Reasonable fallback when the user can't easily test
   something live themselves either (e.g. answering "what does vifm actually do with %pd" by
   reading vifm's C source directly, rather than speculating).
+- Testing nvim/tmux/stow for real works here: `apt-get install neovim tmux zsh stow` (apt had
+  nvim 0.11.6, tmux 3.6). GitHub *release downloads* 502 through the proxy but `git clone`
+  from GitHub works, so lazy.nvim can install every plugin. Point `XDG_CONFIG_HOME` /
+  `XDG_DATA_HOME` / `XDG_STATE_HOME` / `XDG_CACHE_HOME` at a scratch dir with
+  `config/nvim` symlinked to `nvim/.config/nvim`, then `nvim --headless "+Lazy! sync" +qa`.
+  Test tmux on its own socket (`tmux -L test -f tmux/.tmux.conf new -d`), and stow into a fake
+  `HOME=... ./install.sh`.
+- Sandbox-only nvim quirk, not a config bug: lazy.nvim's rtp reset uses `<prefix>/lib64/nvim`
+  whenever `/usr/lib64` exists, and here it does but holds no `nvim/`, so nvim's bundled
+  parsers (`/usr/lib/nvim/parser`) vanish and the stock `ftplugin/lua.lua` errors with
+  "Parser could not be created". Add `-c 'set rtp+=/usr/lib/nvim'` for tests. On Arch
+  `/usr/lib64` → `/usr/lib`, and Homebrew has no `lib64`, so the user's machines are unaffected.
