@@ -1,0 +1,108 @@
+" Selenized Dark for vifm -- to match Ghostty's `theme = Selenized Dark`.
+"
+" Written for this repo (vifm-colors has no Selenized scheme). Palette from
+" jan-warchol/selenized's the-values.md, which Ghostty's theme matches exactly.
+"
+" vifm only uses the gui* (24-bit) values when $TERM names a "-direct"
+" terminfo entry; under xterm-ghostty / tmux-256color it uses cterm*. So the
+" cterm values are the real scheme, and they are the terminal's own 16 ANSI
+" colours, which a Selenized terminal theme maps onto the palette exactly:
+"
+"   default bg  bg_0   #103c48     default fg  fg_0   #adbcbc
+"   0  black    bg_1   #184956     8  lightblack  dim_0  #72898f
+"   1  red             #fa5750     9  lightred           #ff665c
+"   2  green           #75b938     10 lightgreen         #84c747
+"   3  yellow          #dbb32d     11 lightyellow        #ebc13d
+"   4  blue            #4695f7     12 lightblue          #58a3ff
+"   5  magenta         #f275be     13 lightmagenta       #ff84cd
+"   6  cyan            #41c7b9     14 lightcyan          #53d6c7
+"   7  white    fg_0   #adbcbc     15 lightwhite  fg_1   #cad8d9
+"
+" (bg_2 has no ANSI slot in Ghostty's mapping, so it only appears in gui*.)
+" Backgrounds stay "default" wherever possible, so Ghostty's background
+" opacity keeps working. The gui* values mirror the cterm ones.
+"
+" File colours follow GNU ls's defaults (blue dirs, cyan links, green
+" executables, ...), so vifm and `ls` agree in the same terminal.
+
+highlight clear
+
+" ---- frame -----------------------------------------------------------------
+highlight Win        cterm=none         ctermfg=default ctermbg=default gui=none         guifg=default guibg=default
+highlight OtherWin   cterm=none         ctermfg=default ctermbg=default gui=none         guifg=default guibg=default
+highlight AuxWin     cterm=none         ctermfg=8       ctermbg=default gui=none         guifg=#72898f guibg=default
+highlight OddLine    cterm=none         ctermfg=default ctermbg=default gui=none         guifg=default guibg=default
+highlight Border     cterm=none         ctermfg=8       ctermbg=0       gui=none         guifg=#72898f guibg=#184956
+highlight TopLine    cterm=none         ctermfg=8       ctermbg=0       gui=none         guifg=#72898f guibg=#184956
+highlight TopLineSel cterm=bold         ctermfg=12      ctermbg=0       gui=bold         guifg=#58a3ff guibg=#184956
+highlight TabLine    cterm=none         ctermfg=8       ctermbg=0       gui=none         guifg=#72898f guibg=#184956
+highlight TabLineSel cterm=bold         ctermfg=0       ctermbg=4       gui=bold         guifg=#103c48 guibg=#4695f7
+highlight StatusLine cterm=none         ctermfg=7       ctermbg=0       gui=none         guifg=#adbcbc guibg=#184956
+highlight JobLine    cterm=bold         ctermfg=6       ctermbg=0       gui=bold         guifg=#41c7b9 guibg=#184956
+highlight CmdLine    cterm=none         ctermfg=default ctermbg=default gui=none         guifg=default guibg=default
+highlight ErrorMsg   cterm=bold         ctermfg=9       ctermbg=default gui=bold         guifg=#ff665c guibg=default
+highlight LineNr     cterm=none         ctermfg=8       ctermbg=default gui=none         guifg=#72898f guibg=default
+
+" ---- menus / completion ----------------------------------------------------
+highlight WildBox    cterm=none         ctermfg=7       ctermbg=0       gui=none         guifg=#adbcbc guibg=#184956
+highlight WildMenu   cterm=bold         ctermfg=0       ctermbg=3       gui=bold         guifg=#103c48 guibg=#dbb32d
+highlight SuggestBox cterm=none         ctermfg=7       ctermbg=0       gui=none         guifg=#adbcbc guibg=#184956
+
+" ---- cursor and selection --------------------------------------------------
+" The cursor is a bar in the file's own colour (reverse keeps the file-type
+" colour, which a transparent fg lets through); the inactive pane's cursor is
+" just the bg_1 line Selenized uses for CursorLine in vim.
+highlight CurrLine   cterm=bold,reverse ctermfg=default ctermbg=0       gui=bold,reverse guifg=default guibg=#184956
+highlight OtherLine  cterm=none         ctermfg=default ctermbg=0       gui=none         guifg=default guibg=#184956
+highlight Selected   cterm=bold         ctermfg=13      ctermbg=default gui=bold         guifg=#ff84cd guibg=default
+
+" ---- compare views ---------------------------------------------------------
+highlight CmpMismatch  cterm=bold       ctermfg=9       ctermbg=default gui=bold         guifg=#ff665c guibg=default
+highlight CmpUnmatched cterm=bold       ctermfg=10      ctermbg=default gui=bold         guifg=#84c747 guibg=default
+highlight CmpBlank     cterm=none       ctermfg=8       ctermbg=default gui=none         guifg=#72898f guibg=default
+
+" ---- file types (as GNU ls colours them) -----------------------------------
+highlight Directory  cterm=bold         ctermfg=12      ctermbg=default gui=bold         guifg=#58a3ff guibg=default
+highlight Link       cterm=none         ctermfg=14      ctermbg=default gui=none         guifg=#53d6c7 guibg=default
+highlight BrokenLink cterm=bold         ctermfg=9       ctermbg=default gui=bold         guifg=#ff665c guibg=default
+highlight HardLink   cterm=none         ctermfg=default ctermbg=default gui=none         guifg=default guibg=default
+highlight Executable cterm=bold         ctermfg=10      ctermbg=default gui=bold         guifg=#84c747 guibg=default
+highlight Socket     cterm=bold         ctermfg=13      ctermbg=default gui=bold         guifg=#ff84cd guibg=default
+highlight Device     cterm=bold         ctermfg=11      ctermbg=default gui=bold         guifg=#ebc13d guibg=default
+highlight Fifo       cterm=none         ctermfg=3       ctermbg=default gui=none         guifg=#dbb32d guibg=default
+
+" ---- status line user groups (%1* .. %4* in 'statusline') -------------------
+highlight User1 cterm=none ctermfg=0 ctermbg=4 gui=none guifg=#103c48 guibg=#4695f7
+highlight User2 cterm=bold ctermfg=15 ctermbg=0 gui=bold guifg=#cad8d9 guibg=#184956
+highlight User3 cterm=none ctermfg=7 ctermbg=0 gui=none guifg=#adbcbc guibg=#184956
+highlight User4 cterm=none ctermfg=8 ctermbg=0 gui=none guifg=#72898f guibg=#184956
+
+" ---- file names --------------------------------------------------------------
+" archives: red, as in ls
+highlight {*.7z,*.ace,*.arj,*.bz2,*.cpio,*.deb,*.dz,*.gz,*.jar,*.lzh,*.lzma,
+          \*.rar,*.rpm,*.rz,*.tar,*.taz,*.tb2,*.tbz,*.tbz2,*.tgz,*.tlz,*.trz,
+          \*.txz,*.tz,*.tz2,*.tzst,*.xz,*.z,*.zip,*.zoo,*.apk,*.gzip,*.lz,
+          \*.zst,*.zstd,*.dmg,*.pkg,*.iso}
+        \ cterm=none ctermfg=1 ctermbg=default gui=none guifg=#fa5750 guibg=default
+" images and video: magenta, as in ls
+highlight {*.bmp,*.gif,*.jpeg,*.jpg,*.ico,*.png,*.ppm,*.svg,*.svgz,*.tga,*.tif,
+          \*.tiff,*.xbm,*.xcf,*.xpm,*.xwd,*.ai,*.pbm,*.pgm,*.webp,*.heic,*.avif,
+          \*.jxl,*.psd,
+          \*.avi,*.divx,*.flv,*.m2v,*.m4v,*.mp4,*.mpeg,*.mpg,*.mkv,*.mov,*.ogv,
+          \*.qt,*.rm,*.vob,*.webm,*.wmv,*.xvid}
+        \ cterm=none ctermfg=5 ctermbg=default gui=none guifg=#f275be guibg=default
+" audio: cyan, as in ls
+highlight {*.aac,*.ac3,*.ape,*.au,*.flac,*.m4a,*.mid,*.midi,*.mka,*.mp3,*.mpc,
+          \*.oga,*.ogg,*.opus,*.ra,*.spx,*.wav,*.wma}
+        \ cterm=none ctermfg=6 ctermbg=default gui=none guifg=#41c7b9 guibg=default
+" documents: orange's ANSI stand-in, yellow
+highlight {*.pdf,*.epub,*.djvu,*.doc,*.docx,*.odt,*.rtf,*.xls,*.xlsx,*.ods,
+          \*.ppt,*.pptx,*.odp}
+        \ cterm=none ctermfg=3 ctermbg=default gui=none guifg=#dbb32d guibg=default
+" backups, temp files and the like: dimmed
+highlight {*~,*.bak,*.old,*.orig,*.swp,*.tmp,*.part,*.log,.DS_Store}
+        \ cterm=none ctermfg=8 ctermbg=default gui=none guifg=#72898f guibg=default
+" project/meta files: bold, so they stand out in a listing
+highlight {README,README.*,LICENSE,LICENSE.*,LICENCE,COPYING,Makefile,
+          \CMakeLists.txt,Dockerfile,justfile,Justfile,CLAUDE.md}
+        \ cterm=bold ctermfg=15 ctermbg=default gui=bold guifg=#cad8d9 guibg=default

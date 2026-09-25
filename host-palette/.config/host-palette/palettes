@@ -1,0 +1,36 @@
+# Per-host colour ramps -- the one place they are defined.
+#
+# Everything that paints "which machine is this" reads this file: the starship
+# prompt (sh/conf.d/60-starship.sh appends the chosen row to its generated
+# config) and the tmux status bar (tmux.sh pushes it into @hp_* options).
+# Which row a machine uses is decided by lib.sh; `host-palette` lists and
+# switches them. Adding a row here is the only step needed to make a new
+# palette selectable everywhere.
+#
+# One palette per line, whitespace separated, `#` starts a comment line:
+#
+#   c1  lightest -- the host pill, the brightest thing on screen
+#   c2  vivid    -- starship's directory, tmux's current window
+#   c3  dark     -- starship's git, tmux's session
+#   c4  darker   -- starship's toolchain stop
+#   c5  darkest  -- starship's status/duration stop, tmux's bar background
+#   t1  near-black text for c1/c2, t2 light text for c3, t5 muted text for c5
+#
+# Most rows come from one HSL recipe (at H=222 it reproduces starship's
+# tokyo-night preset, hence `blue`), so they read as the same design -- only
+# the hue changes (S/L in percent):
+#   c1 S35 L73   c2 S80 L70   c3 S27 L30   c4 S24 L17   c5 S25 L15
+#   t1 S12 L5    t2 S26 L93   t5 S25 L71
+# slate is the same recipe at roughly a third of the saturation; neon-cyan and
+# light-green are hand-picked.
+#
+# name      c1      c2      c3      c4      c5      t1      t2      t5
+blue        #a2b1d2 #759af0 #384461 #212736 #1d2230 #0b0c0e #e9ebf2 #a3aec8
+cyan        #a2cdd2 #75e2f0 #385c61 #213336 #1d2e30 #0b0e0e #e9f1f2 #a3c3c8
+neon-cyan   #7ffefd #00fefc #004c4b #003232 #001919 #0b0e0e #e9f1f2 #a3c3c8
+green       #a2d2a8 #75f085 #38613d #213624 #1d301f #0b0e0c #e9f2ea #a3c8a7
+light-green #bcf4bc #90ee90 #2b472b #1c2f1c #0e170e #0b0e0c #e9f2ea #a3c8a7
+purple      #c2a2d2 #c775f0 #533861 #2f2136 #291d30 #0d0b0e #efe9f2 #bba3c8
+amber       #d2c1a2 #f0c375 #615238 #362e21 #30291d #0e0d0b #f2eee9 #c8baa3
+rose        #d2a2ac #f0758d #613840 #362125 #301d21 #0e0b0c #f2e9ea #c8a3aa
+slate       #b3b8c1 #a1adc4 #474b52 #282a2e #242529 #0c0d0d #ecedee #b0b3ba

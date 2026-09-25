@@ -137,8 +137,10 @@ endif
 " Add -s to the default value to suppress "Permission denied" errors
 set grepprg="grep -n -H -I -r -s %i %a %s"
 
-" List of color schemes to try (picks the first one supported by the terminal)
-colorscheme Default-256 Default
+" List of color schemes to try (picks the first one supported by the terminal).
+" selenized-dark (colors/selenized-dark.vifm) matches Ghostty's theme and
+" needs 16 colours; the stock ones remain as fallbacks.
+colorscheme selenized-dark Default-256 Default
 
 " Make imgpreview (image/video preview helper, see fileviewer entries below)
 " available on PATH.

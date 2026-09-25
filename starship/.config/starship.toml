@@ -7,22 +7,21 @@
 #   ░▒▓ 󰀵 mbp ▓ ~/dev/dotfiles ▓  main  1 ?2 ▓  v22.2.0 ▓  13:44 ▓
 #   ❯
 #
-# Every palette below is generated from one HSL recipe, so all hues read as the
-# same design. At H=222 that recipe reproduces tokyo-night's own ramp (c4 and c5
-# come out identical to the preset's hex, the rest within a couple of points) --
-# the `blue` palette is effectively the preset.
+# The ramp is not defined here. Every host-specific colour lives in
+# ~/.config/host-palette/palettes (the host-palette package), shared with the
+# tmux status bar; sh/conf.d/60-starship.sh appends this machine's row to a
+# generated copy of this file as [palettes.host]. Stops, as used below:
 #
 #   c1  lightest -- the OS/host pill, the brightest thing on the line
-#   c2  vivid    -- the directory pill, and the text colour on the dark stops
+#   c2  vivid    -- the directory pill, and the prompt character
 #   c3  dark     -- git
 #   c4  darker   -- toolchain versions
 #   c5  darkest  -- duration / status / jobs / clock
-#   t1  near-black text for the c1 pill, t2 light text for c2, t5 muted for c5
+#   t1  near-black text for c1/c2, t2 light text, t5 muted text for c5
 #
-# `palette` is rewritten per host by sh/conf.d/60-starship.sh into a generated
-# copy under ~/.cache/starship/; this file stays the only one to edit. Switch
-# with `starship-palette purple`, persist with `starship-palette -w purple`.
-# See CLAUDE.md -> "## starship".
+# This file stays the only one to edit for layout. Switch colours with
+# `host-palette purple`, persist with `host-palette -w purple`.
+# See CLAUDE.md -> "## host palette" and "## starship".
 #
 # NOTE: starship has no config includes and does not expand env vars inside
 # style strings (both confirmed against starship 1.26), which is why the
@@ -30,9 +29,11 @@
 
 "$schema" = 'https://starship.rs/config-schema.json'
 
-# Rewritten per host by 60-starship.sh. Keep this line's exact shape
-# (`palette = "..."` at column 0) -- the sed in that script matches on it.
-palette = "slate"
+# Defined nowhere in this file: 60-starship.sh appends [palettes.host], this
+# machine's row from ~/.config/host-palette/palettes, to a generated copy.
+# Used on its own (e.g. `STARSHIP_CONFIG=this starship prompt`), starship
+# warns about the missing palette and renders unstyled.
+palette = "host"
 
 add_newline = false
 command_timeout = 1000
@@ -93,103 +94,6 @@ $status\
 [](fg:c5)\
 $character\
 """
-
-
-# ---------------------------------------------------------------------------
-# Palettes: one ramp per host. Generated, not hand-picked -- see the recipe in
-# the header. Add a palette here and `starship-palette` picks it up with no
-# other change.
-# ---------------------------------------------------------------------------
-
-[palettes.blue]
-c1 = "#a2b1d2"
-c2 = "#759af0"
-c3 = "#384461"
-c4 = "#212736"
-c5 = "#1d2230"
-t1 = "#0b0c0e"
-t2 = "#e9ebf2"
-t5 = "#a3aec8"
-
-[palettes.cyan]
-c1 = "#a2cdd2"
-c2 = "#75e2f0"
-c3 = "#385c61"
-c4 = "#213336"
-c5 = "#1d2e30"
-t1 = "#0b0e0e"
-t2 = "#e9f1f2"
-t5 = "#a3c3c8"
-
-[palettes.neon-cyan]
-c1 = "#7ffefd"
-c2 = "#00fefc"
-c3 = "#004C4B"
-c4 = "#003232"
-c5 = "#001919"
-t1 = "#0b0e0e"
-t2 = "#e9f1f2"
-t5 = "#a3c3c8"
-
-[palettes.green]
-c1 = "#a2d2a8"
-c2 = "#75f085"
-c3 = "#38613d"
-c4 = "#213624"
-c5 = "#1d301f"
-t1 = "#0b0e0c"
-t2 = "#e9f2ea"
-t5 = "#a3c8a7"
-
-[palettes.light-green]
-c1 = "#bcf4bc"
-c2 = "#90ee90"
-c3 = "#2b472b"
-c4 = "#1c2f1c"
-c5 = "#0e170e"
-t1 = "#0b0e0c"
-t2 = "#e9f2ea"
-t5 = "#a3c8a7"
-
-[palettes.purple]
-c1 = "#c2a2d2"
-c2 = "#c775f0"
-c3 = "#533861"
-c4 = "#2f2136"
-c5 = "#291d30"
-t1 = "#0d0b0e"
-t2 = "#efe9f2"
-t5 = "#bba3c8"
-
-[palettes.amber]
-c1 = "#d2c1a2"
-c2 = "#f0c375"
-c3 = "#615238"
-c4 = "#362e21"
-c5 = "#30291d"
-t1 = "#0e0d0b"
-t2 = "#f2eee9"
-t5 = "#c8baa3"
-
-[palettes.rose]
-c1 = "#d2a2ac"
-c2 = "#f0758d"
-c3 = "#613840"
-c4 = "#362125"
-c5 = "#301d21"
-t1 = "#0e0b0c"
-t2 = "#f2e9ea"
-t5 = "#c8a3aa"
-
-[palettes.slate]
-c1 = "#b3b8c1"
-c2 = "#a1adc4"
-c3 = "#474b52"
-c4 = "#282a2e"
-c5 = "#242529"
-t1 = "#0c0d0d"
-t2 = "#ecedee"
-t5 = "#b0b3ba"
 
 
 # ---------------------------------------------------------------------------

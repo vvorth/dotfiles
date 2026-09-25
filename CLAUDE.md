@@ -6,8 +6,8 @@ changes, especially to `vifm/`, `tmux/`, or the shared shell config.
 
 ## Layout: GNU Stow packages
 
-Every top-level directory (`bash/`, `zsh/`, `fzf/`, `starship/`, `nvim/`, `vifm/`, `tmux/`,
-`screen/`, `vim/`, `ghostty/`, `iterm2/`, `linearmouse/`) is a Stow "package" whose contents mirror `$HOME`
+Every top-level directory (`bash/`, `zsh/`, `fzf/`, `host-palette/`, `starship/`, `nvim/`,
+`vifm/`, `tmux/`, `screen/`, `vim/`, `ghostty/`, `iterm2/`, `linearmouse/`) is a Stow "package" whose contents mirror `$HOME`
 exactly (e.g. `vifm/.config/vifm/vifmrc` → `~/.config/vifm/vifmrc`). `install.sh` wraps
 `stow`:
 
@@ -40,10 +40,11 @@ Both `bash/.bashrc` and `zsh/.zshrc` source, in order:
 1. `~/.aliases` (from `bash/.aliases`, shared by both shells)
 2. every `*.sh` in `${XDG_CONFIG_HOME:-$HOME/.config}/sh/conf.d/` — a shell-agnostic drop-in
    dir. **Any package can contribute a file here**, not just `bash/`: e.g.
+   `host-palette/.config/sh/conf.d/30-host-palette.sh` resolves this machine's colour ramp,
    `fzf/.config/sh/conf.d/40-fzf.sh` sets up fzf (its own package, so it works with either
    shell's package), `nvim/.config/sh/conf.d/50-nvim.sh` aliases `vi`/`vim` → `nvim` and sets
-   `$EDITOR`/`$VISUAL`/`$MANPAGER`, `starship/.config/sh/conf.d/60-starship.sh` picks this
-   machine's prompt colour and runs `starship init`. Convention: a conf.d file whose tool is
+   `$EDITOR`/`$VISUAL`/`$MANPAGER`, `starship/.config/sh/conf.d/60-starship.sh` paints the
+   prompt in that ramp and runs `starship init`. Convention: a conf.d file whose tool is
    missing bails out with `command -v <tool> >/dev/null 2>&1 || return 0` first (works in
    both shells, since the file is sourced) — `50-nvim.sh` does this so `EDITOR=nvim` never
    lands on a host without nvim and breaks `git commit`. Use this when a package's
@@ -54,61 +55,94 @@ Both `bash/.bashrc` and `zsh/.zshrc` source, in order:
    `~/.aliases.local`) — these are never created by this repo, just conditionally sourced if
    present, so machine-specific secrets/tweaks don't need to touch git at all.
 
-`.gitignore` only excludes `nvim/.config/nvim/lazy-lock.json` (plugin lockfile, regenerates
-per-machine) — the `.local` files above aren't gitignored, they just never get committed
+`.gitignore` excludes `nvim/.config/nvim/lazy-lock.json` (plugin lockfile, regenerates
+per-machine) and `host-palette/.config/host-palette/host` (machine-local, only reachable if
+stow ever folded that dir) — the `.local` files above aren't gitignored, they just never get committed
 because nothing here creates them.
+
+## host palette — one colour ramp per machine, for starship and tmux
+
+`host-palette/` package: `.config/host-palette/{palettes,lib.sh,tmux.sh}` +
+`.config/sh/conf.d/30-host-palette.sh`. **`~/.config/host-palette/palettes` is the only place
+host colours are defined** — a whitespace table, one row per palette, columns `c1`…`c5`, `t1`,
+`t2`, `t5`. Both the starship prompt and the tmux status bar read the same row, so a glance at
+either says which machine you're on. A new row is immediately selectable everywhere.
+
+Every row but two is generated from one HSL recipe (the S/L values are in the file header;
+only the hue changes), so all hues read as the same design. At hue 222 the recipe reproduces
+tokyo-night's own stops — `blue` is effectively the starship preset, which is why the recipe was
+chosen. `slate` is the recipe at a third of the saturation, the fallback for unassigned
+machines. `neon-cyan` and `light-green` are hand-picked by the user.
+
+Palette selection (in `lib.sh`, highest precedence first): `$HOST_PALETTE_OVERRIDE` (set by
+`host-palette NAME`, inherited by subshells and by a tmux server started from that shell) →
+the untracked one-word file `~/.config/host-palette/host` (written by `host-palette -w NAME`)
+→ the legacy `~/.config/starship-host` (same thing, pre-rename; still honoured so existing
+machines keep their colour, safe to delete once `-w` has been run) → the hostname `case`
+table in `lib.sh` (tracked, so filling it in once covers every machine) → `slate`. A name
+that isn't in the file also lands on `slate`. The result is exported as `$HOST_PALETTE`, which
+is an output only — nothing reads it back as input, so a stale value in some long-lived
+environment (e.g. tmux's global env) can't pin the wrong palette.
+
+`host-palette` with no args prints truecolor swatches of every row, `*` on the current one;
+`host-palette NAME` switches this shell only (how to compare ramps side by side);
+`host-palette -w NAME` persists it, clears any override, and repaints a running tmux server.
+
+How each consumer gets the colours:
+- **starship** can't take them directly (see the starship section), so `60-starship.sh`
+  appends the row as `[palettes.host]` to a generated copy of `starship.toml`.
+- **tmux** expands `#{@option}` formats inside style options (verified on 3.6, including
+  values set *after* the config loaded), so `.tmux.conf` writes its whole status bar against
+  `#{@hp_c1}`…`#{@hp_t5}` and `tmux.sh` only `set -g`s those nine user options. The layout
+  lives in `.tmux.conf`, the colours in `palettes`, and a repaint needs no reload. `.tmux.conf`
+  sets ANSI-name stand-ins first, so it still renders if this package isn't stowed.
+  `tmux.sh` runs from `run-shell` at config load, so it must print nothing (output would open
+  in a pane), and resolves the palette with the *server's* environment — `$HOST`/`$HOSTNAME`
+  may be missing there, hence the `uname -n` fallback.
+- `lib.sh` is plain POSIX sh (`tmux.sh` runs it under dash on Debian) and its functions set
+  variables instead of printing, so a shell start does no forks for it.
 
 ## starship — per-host prompt colour
 
 `starship/.config/starship.toml` + `starship/.config/sh/conf.d/60-starship.sh`.
 
 The layout is the stock **tokyo-night preset's powerline bar**, with its single blue ramp
-replaced by **one ramp per machine**. The gradient still runs bright → dark left to right; only
-its hue changes per host, which is what replaces the old "whole prompt is cyan/green/purple
-depending on the host" PS1.
-
-Every palette is generated from one HSL recipe rather than hand-picked, so all hues read as the
-same design. At hue 222 that recipe reproduces tokyo-night's own stops (c4 and c5 come out
-identical to the preset's hex, the rest within a couple of points) — the `blue` palette is
-effectively the preset, which is why the recipe was chosen. Palettes shipped: `blue`, `cyan`,
-`green`, `purple`, `amber`, `rose`, and `slate` (a desaturated fallback for a machine that has
-not been assigned one).
+replaced by **this machine's host palette** (previous section). The gradient still runs
+bright → dark left to right; only its hue changes per host, which is what replaces the old
+"whole prompt is cyan/green/purple depending on the host" PS1.
 
 Ramp stops, and what sits on each:
 
 | key | role | segment |
 |-----|------|---------|
 | `c1` | lightest | OS icon + `[user@]host` — the brightest thing on the line, on purpose |
-| `c2` | vivid | directory; also the text colour on every dark stop, and the `❯` |
+| `c2` | vivid | directory, and the `❯` |
 | `c3` | dark | git branch + status |
 | `c4` | darker | toolchain versions |
 | `c5` | darkest | jobs, command duration, exit status, clock |
-| `t1` / `t2` / `t5` | text | near-black on `c1`, light on `c2`, muted on `c5` |
-
-The palette blocks are generated; regenerate rather than hand-editing them if the recipe ever
-changes (the generator is a few lines of `colorsys` — see the file header for the stop values).
+| `t1` / `t2` / `t5` | text | near-black on `c1`/`c2`, light, muted on `c5` |
 
 **Why the colour switch is indirect:** starship has no config includes and does not expand
 environment variables inside style strings — both confirmed against starship 1.26 by testing
 the binary rather than reading docs (`format = "[x](${VAR})"` renders unstyled; a top-level
 `include = "..."` key errors with `Unknown key`). A palette is chosen by one static top-level
-`palette = "..."` key. So `60-starship.sh` sed-rewrites that single line into a generated copy
-at `~/.cache/starship/prompt-<palette>.toml` and exports `STARSHIP_CONFIG` pointing at it.
-What follows from that:
+`palette = "..."` key. So the tracked config says `palette = "host"` and defines **no**
+palettes; `60-starship.sh` writes `starship.toml` + an appended `[palettes.host]` block (this
+machine's row from `palettes`) to `~/.cache/starship/prompt-<name>.toml` and exports
+`STARSHIP_CONFIG` pointing at it. What follows from that:
 
-- **`~/.config/starship.toml` is still the only file to edit.** The cache copy is regenerated
-  whenever the tracked file is newer (`-nt`), so edits appear in the next new shell.
-- The `palette = "..."` line in the tracked config must keep its exact shape (that literal at
-  column 0) — the sed matches on it. It is set to `slate` there so the file also works
-  standalone, e.g. under a bare `STARSHIP_CONFIG=... starship print-config`.
-- A normal shell start costs one `stat()`; the sed and the palette-name validation only run on
-  a cache miss.
-
-Palette selection, highest precedence first: an already-exported `$STARSHIP_HOST_PALETTE` →
-the untracked one-word file `~/.config/starship-host` → the hostname `case` table inside
-`60-starship.sh` (tracked, so filling it in once covers every machine that syncs this repo) →
-`slate`. Per host the quickest setup is `starship-palette -w green`; without `-w` it switches
-only the current shell, which is how to compare ramps side by side.
+- **`~/.config/starship.toml` is still the only file to edit** for layout, and `palettes` for
+  colours. The cache copy is regenerated whenever either is newer (`-nt`), so edits appear in
+  the next new shell (or after `host-palette NAME`, which re-renders the current one).
+- Used standalone (`STARSHIP_CONFIG=starship/.config/starship.toml starship prompt`), starship
+  warns `Could not find color palette: host` and renders without the ramp — expected.
+- The block is appended at the end, not spliced in: TOML top-level keys must precede the first
+  table, but a table can go anywhere, so `palette = "host"` stays near the top and the new table
+  is safe after `[character]`.
+- A normal shell start costs a couple of `stat()`s; the palette lookup, `cat` and write only
+  run on a cache miss. The copy is written to a temp file and `mv`'d, so a shell starting
+  concurrently never reads half of it.
+- Without the host-palette package, the copy gets an ANSI-name palette instead.
 
 Non-obvious things learned building this:
 
@@ -149,6 +183,9 @@ Non-obvious things learned building this:
   deleted, untracked, non-zero exit, background jobs, outside a repo), for every palette, plus
   sourcing `60-starship.sh` in real `bash -c` and `zsh -f -c` shells. `starship print-config`
   is the fast "does this even parse" check — it warns about unknown keys and missing palettes.
+  The host-palette rework was re-verified with apt's starship 1.22 (`apt-get install
+  starship`, no release download needed): both shells, `host-palette` switch / `-w` / bad
+  name, legacy `starship-host`, cache regeneration, and `-w` repainting a live tmux.
 
 ## vifm — image/video previews
 
@@ -219,6 +256,11 @@ when `infocmp` can't find it (older macOS system terminfo lacks it). `terminal-f
 `RGB:usstyle:clipboard` **per outer terminal** (`xterm-256color` — which is what iTerm2
 reports — `xterm-ghostty`, `xterm-kitty`, `alacritty`, `wezterm`), deliberately not `*`, so a
 bare Linux console isn't forced into truecolor. Add a line there for any new terminal.
+
+Status bar: host on `c1`, session on `c3`, windows on the `c5` bar with the current one on
+`c2`, clock on the right, a key icon while the prefix is held — all in the host palette via
+`#{@hp_*}` options (see "host palette" above for how they get filled in). The edges are the
+same half-block `▌` steps and rounded left cap as the starship bar.
 
 Copy mode: `mode-keys vi` (`v` select, `C-v` block, `y` yank) plus `set-clipboard on`, so every
 tmux copy, and OSC 52 from programs inside tmux (nvim over SSH), reaches the system clipboard.
@@ -305,6 +347,39 @@ assuming it's fixed. Workarounds if stuck on an unfixed version: toggle focus wi
 `cmd+2` repeatedly, or temporarily set `macos-titlebar-style = native` (loses the integrated-tab
 look but sidesteps the bug entirely).
 
+## Selenized Dark — nvim, lualine, vim, vifm
+
+Ghostty's `theme = Selenized Dark` is matched in every TUI. Canonical values are in
+jan-warchol/selenized's `the-values.md`; Ghostty's theme file (from iTerm2-Color-Schemes)
+uses exactly those, with ANSI 0 = `bg_1`, 7 = `fg_0`, 8 = `dim_0`, 15 = `fg_1`, and the
+background = `bg_0` — note this differs from upstream Selenized's own terminal files, which put
+`dim_0` on 7 and `bg_2` on 8.
+
+- **nvim**: plugin `calind/selenized.nvim` (`plugins/colorscheme.lua`, a Lua port with
+  treesitter/LSP/gitsigns groups). It defines gui colours only, so `options.lua` applies it only
+  when `termguicolors` is on and falls back to `slate` otherwise (bare console), or if the plugin
+  isn't installed yet. The colorscheme is chosen in `options.lua`, not in the plugin spec,
+  because `options.lua` (which decides `termguicolors`) runs *after* lazy's setup.
+- **lualine**: our own `lua/lualine/themes/selenized_dark.lua` with hard-coded canonical hex.
+  Deliberately not the port's bundled `lualine/themes/selenized.lua`: that one reads a global
+  the colorscheme sets, and lualine loads at startup *before* `options.lua` applies the
+  colorscheme, so it would error (and would with the slate fallback anyway).
+- **vim**: upstream's `selenized.vim` vendored verbatim into `vim/.vim/colors/` (Vim license).
+  `.vimrc` turns on `termguicolors` when `$COLORTERM` says truecolor or inside tmux, and sets
+  `t_8f`/`t_8b` itself — vim only knows those escapes for xterm-ish `$TERM`s, so without them
+  truecolor breaks under `tmux-256color`. Falls back to `slate` if the file is missing.
+- **vifm**: `vifm/.config/vifm/colors/selenized-dark.vifm`, written for this repo (vifm-colors
+  has no Selenized). vifm only uses `gui*` colours when `$TERM` is a `-direct` terminfo entry,
+  so in practice the `cterm*` values are what's used: they are the 16 ANSI slots, which
+  Ghostty maps onto Selenized exactly. Backgrounds stay `default` so Ghostty's opacity shows
+  through. The cursor line is `bold,reverse` over a transparent fg, so the bar takes the file's
+  own type colour. File colours follow GNU ls defaults. `colorscheme selenized-dark
+  Default-256 Default` in `vifmrc` falls back to the stock schemes on a <16-colour terminal.
+- Verified here: nvim 0.11 headless after `Lazy! sync` (`colors_name`, `Normal`, and
+  `lualine_a_normal` highlights, no messages; `TERM=linux` → slate), real vim 9.1
+  (`/usr/bin/vim.basic` — plain `vim` in the sandbox is nvim), and vifm 0.14 inside tmux
+  (captured pane escapes show the expected ANSI slots per file type).
+
 ## iterm2
 
 `iterm2/.config/iterm2/com.googlecode.iterm2.plist` is a full **exported** preferences plist
@@ -314,9 +389,9 @@ the app and re-export, or edit narrowly with a plist-aware tool.
 
 ## screen, vim
 
-Both present but essentially unmodified upstream sample configs (`screen/.screenrc` is GNU
-screen's own example file almost verbatim; `vim/.vimrc` is ~18 lines of basic
-options/colorscheme). Not actively developed — `nvim/` is where the real editor config lives
+Both present but mostly upstream sample configs (`screen/.screenrc` is GNU
+screen's own example file almost verbatim; `vim/.vimrc` is basic options plus the Selenized
+colorscheme described above). Not actively developed — `nvim/` is where the real editor config lives
 now (`nvim/.config/sh/conf.d/50-nvim.sh`, contributed by the `nvim` package, aliases `vi`/`vim` →
 `nvim` globally).
 
@@ -345,6 +420,11 @@ assuming either way before editing `Brewfile`.
   parsing, then removing them again. Reasonable fallback when the user can't easily test
   something live themselves either (e.g. answering "what does vifm actually do with %pd" by
   reading vifm's C source directly, rather than speculating).
+- **The Write/Edit tools can silently drop Private Use Area glyphs in the U+E0xx range**
+  (Nerd Font powerline caps like U+E0B6), while U+F0xxx icons survive. When a config needs
+  one, insert it from Python with a `\ue0b6` escape, then check the codepoints
+  (`python3 -c 'print([hex(ord(c)) for c in open(f).read() if ord(c)>0x2000])'`). This
+  briefly looked like "tmux drops U+E0B6"; it doesn't — tmux 3.6 renders it fine.
 - Testing nvim/tmux/stow for real works here: `apt-get install neovim tmux zsh stow` (apt had
   nvim 0.11.6, tmux 3.6). GitHub *release downloads* 502 through the proxy but `git clone`
   from GitHub works, so lazy.nvim can install every plugin. Point `XDG_CONFIG_HOME` /

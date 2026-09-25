@@ -16,7 +16,7 @@ require("lazy").setup({
   spec = {
     { import = "plugins" },  -- auto-loads every file in lua/plugins/
   },
-  install = { colorscheme = { "habamax" } },
+  install = { colorscheme = { "selenized", "habamax" } },
   checker = { enabled = true, notify = false }, -- auto-check for plugin updates
   change_detection = { notify = false },
   rocks = { enabled = false },  -- ADD THIS: no luarocks-based plugins in use, stop checking
