@@ -4,7 +4,7 @@ return {
     dependencies = { "nvim-mini/mini.icons" }, -- Establish the dependency
     opts = {
       options = {
-        theme = "selenized_dark", -- lua/lualine/themes/selenized_dark.lua
+        theme = "auto",
         globalstatus = true,
       },
       sections = {

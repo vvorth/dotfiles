@@ -27,12 +27,7 @@ vim.opt.termguicolors = supports_truecolor()
 vim.opt.guicursor = "n-v-c-i:block"
 
 vim.opt.background = "dark"
--- Selenized Dark to match Ghostty (plugins/colorscheme.lua). The port only sets
--- gui colours, so without termguicolors (a bare console) it would render
--- uncoloured -- keep slate there, and if the plugin isn't installed yet.
-if not (vim.o.termguicolors and pcall(vim.cmd.colorscheme, "selenized")) then
-  vim.cmd.colorscheme("slate")
-end
+vim.cmd.colorscheme("slate")
 
 vim.opt.number = true         -- show line number
 vim.opt.relativenumber = true
