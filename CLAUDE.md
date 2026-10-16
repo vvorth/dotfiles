@@ -251,7 +251,7 @@ noice (cmdline popup), which-key, treesitter (+ native fold via `foldexpr`), con
 (formatting), mason + mason-tool-installer, blink.cmp + nvim-lspconfig (`lsp.lua`), snacks (`snacks-scroll.lua` — despite the name it
 configures all of snacks: scroll, picker, explorer, notifier, indent, image, terminal),
 lualine, mini.icons (mocking nvim-web-devicons), render-markdown + markdown-table-wrap,
-ultimate-autopair, vim-sleuth, vim-tmux-navigator.
+ultimate-autopair, vim-sleuth, vim-tmux-navigator, tf-docs (Terraform registry docs).
 
 Not active, despite files existing: `wilder.lua` is `enabled = false` (kept in favor of native
 `wildmenu`/`wildoptions=pum` in `options.lua`); `nvim-tree.lua` is a `return {}` stub with the
@@ -267,7 +267,12 @@ when no `terraform` binary is on PATH. `terraform` itself is deliberately not in
 mason: `init.lua` puts mason's `bin` first on PATH, so it would shadow the user's own
 (tfenv/brew) terraform in `:terminal`. `options.lua` forces `*.tf` → `terraform` with
 `vim.filetype.add`, because stock detection calls an empty `.tf` file, or one opening with a
-`//` comment, TinyFugue (`tf`).
+`//` comment, TinyFugue (`tf`). `tf-docs.lua` adds registry docs for the block under the cursor
+(`gK` open, `gY` copy URL, `<leader>ct` pick a block), version-pinned from
+`.terraform.lock.hcl`. It was picked over `Allaman/tf.nvim` because it opens through
+`vim.ui.open`, so the SSH override above applies; tf.nvim runs its own `xdg-open`/`open`, and
+only resolves namespaces from a built-in table, with no version. tf.nvim's extras, a state
+browser and `terraform validate`, were left out.
 
 Load-order things that are easy to break:
 - **`config/keymaps.lua` is a which-key spec, not code**: it `return`s a table that
