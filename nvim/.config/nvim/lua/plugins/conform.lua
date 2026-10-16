@@ -28,6 +28,11 @@ return {
       html = { "prettier" },
       css = { "prettier" },
       toml = { "taplo" },
+      -- terraform fmt when the binary is around (it also rewrites legacy
+      -- syntax); otherwise plain hclfmt, which mason always provides
+      terraform = { "terraform_fmt", "hcl", stop_after_first = true },
+      ["terraform-vars"] = { "terraform_fmt", "hcl", stop_after_first = true },
+      hcl = { "hcl" }, -- hclfmt: packer, nomad, terragrunt, any other HCL
       -- fallback for any filetype not listed above: uses whatever the attached
       -- LSP server offers for formatting, if anything
       ["_"] = { "trim_whitespace" },

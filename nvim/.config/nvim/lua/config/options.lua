@@ -76,4 +76,20 @@ vim.o.foldlevel = 99        -- start with everything UNfolded (0 would open ever
 vim.o.foldlevelstart = 99
 vim.o.foldenable = true
 
-
+-- HCL/Terraform filetypes. Stock detection calls a *.tf file TinyFugue (`tf`)
+-- unless it has a non-blank line not starting with ; or /, so a brand-new
+-- main.tf, or one opening with a // comment, got no LSP/treesitter/formatter.
+vim.filetype.add({
+  extension = {
+    tf = "terraform",
+    nomad = "hcl",
+    tfstate = "json",
+  },
+  filename = {
+    [".terraformrc"] = "hcl",
+    ["terraform.rc"] = "hcl",
+  },
+  pattern = {
+    [".*%.tfstate%.backup"] = "json",
+  },
+})

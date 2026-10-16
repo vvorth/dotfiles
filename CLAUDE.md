@@ -248,15 +248,26 @@ Hand-built LazyVim-alike (not the LazyVim distro) on top of `lazy.nvim`. Ground 
 `nvim/.config/nvim/lua/plugins/*.lua` (one file per plugin) and `lua/config/*.lua`
 (`options.lua`, `keymaps.lua`, `autocmds.lua`, `lazy.lua` for the bootstrap). Active plugins:
 noice (cmdline popup), which-key, treesitter (+ native fold via `foldexpr`), conform
-(formatting), mason + mason-tool-installer, snacks (`snacks-scroll.lua` — despite the name it
+(formatting), mason + mason-tool-installer, blink.cmp + nvim-lspconfig (`lsp.lua`), snacks (`snacks-scroll.lua` — despite the name it
 configures all of snacks: scroll, picker, explorer, notifier, indent, image, terminal),
 lualine, mini.icons (mocking nvim-web-devicons), render-markdown + markdown-table-wrap,
 ultimate-autopair, vim-sleuth, vim-tmux-navigator.
 
 Not active, despite files existing: `wilder.lua` is `enabled = false` (kept in favor of native
 `wildmenu`/`wildoptions=pum` in `options.lua`); `nvim-tree.lua` is a `return {}` stub with the
-old config commented out (snacks' explorer replaced it on `<leader>e`). **There is no LSP and
-no completion plugin yet** — noice's `cmp.entry.get_documentation` override is inert.
+old config commented out (snacks' explorer replaced it on `<leader>e`). noice's
+`cmp.entry.get_documentation` override is inert (completion is blink.cmp, not nvim-cmp).
+
+Adding a language touches up to five files: the parser list in `treesitter.lua`, the server
+in `lsp.lua`'s `vim.lsp.enable`, the formatter in `conform.lua`, the mason package names in
+`mason.lua`, and the 2-space `FileType` list in `autocmds.lua`. HCL/Terraform is the worked
+example: `terraform-ls` + `tflint` (terraform filetypes only; plain `.hcl` such as packer/nomad
+gets treesitter + hclfmt but no LSP), and `terraform fmt` falling back to mason's `hclfmt`
+when no `terraform` binary is on PATH. `terraform` itself is deliberately not installed via
+mason: `init.lua` puts mason's `bin` first on PATH, so it would shadow the user's own
+(tfenv/brew) terraform in `:terminal`. `options.lua` forces `*.tf` → `terraform` with
+`vim.filetype.add`, because stock detection calls an empty `.tf` file, or one opening with a
+`//` comment, TinyFugue (`tf`).
 
 Load-order things that are easy to break:
 - **`config/keymaps.lua` is a which-key spec, not code**: it `return`s a table that
@@ -265,7 +276,8 @@ Load-order things that are easy to break:
   of on `VeryLazy` (verified via lazy's `_.loaded` reason: it was `require` from keymaps.lua).
   which-key creates the mappings a tick after it loads, so a headless check has to
   `doautocmd User VeryLazy` and then `vim.defer_fn` before probing `maparg`.
-- **nvim-treesitter's `main` branch does not support lazy-loading** (its README), so it is
+- **nvim-treesitter's `main` branch needs nvim ≥ 0.12** (it errors in `install()` on 0.11)
+  **and does not support lazy-loading** (its README), so it is
   `lazy = false` with everything in `config`. Its `install()` already skips installed parsers.
   `markdown_inline` is required by render-markdown; the parser list also covers what conform
   formats. The `FileType` hook only sets the treesitter `indentexpr` when
@@ -346,8 +358,12 @@ assuming either way before editing `Brewfile`.
   something live themselves either (e.g. answering "what does vifm actually do with %pd" by
   reading vifm's C source directly, rather than speculating).
 - Testing nvim/tmux/stow for real works here: `apt-get install neovim tmux zsh stow` (apt had
-  nvim 0.11.6, tmux 3.6). GitHub *release downloads* 502 through the proxy but `git clone`
-  from GitHub works, so lazy.nvim can install every plugin. Point `XDG_CONFIG_HOME` /
+  nvim 0.11.6, tmux 3.6, but another session's apt only had 0.9.5 — too old; the official
+  `nvim-linux-x86_64.tar.gz` from GitHub releases downloaded fine then and gave 0.12.6).
+  `git clone` from GitHub works, so lazy.nvim can install every plugin, and mason installed
+  its tools, but nvim-treesitter's parser tarball downloads got 403 — build a parser by hand
+  with mason's `tree-sitter build -o <site>/parser/<lang>.so` in a clone of its repo, and copy
+  `nvim-treesitter/runtime/queries/<lang>` to `<site>/queries/`. Point `XDG_CONFIG_HOME` /
   `XDG_DATA_HOME` / `XDG_STATE_HOME` / `XDG_CACHE_HOME` at a scratch dir with
   `config/nvim` symlinked to `nvim/.config/nvim`, then `nvim --headless "+Lazy! sync" +qa`.
   Test tmux on its own socket (`tmux -L test -f tmux/.tmux.conf new -d`), and stow into a fake

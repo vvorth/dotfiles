@@ -18,6 +18,7 @@ return {
         "prettier", -- JS/TS/JSON/YAML/HTML/CSS/Markdown
         "ruff", -- Python (swap for "black" to match a project's convention)
         "taplo", -- TOML
+        "hclfmt", -- HCL (terraform files use `terraform fmt` when it's on PATH)
         -- LSP servers / linters can also go in this list — this plugin
         -- installs anything Mason knows about, not just formatters
         "tree-sitter-cli",
@@ -25,7 +26,9 @@ return {
         "bash-language-server",
         "shellcheck",
         "basedpyright",
-        "lua-language-server"
+        "lua-language-server",
+        "terraform-ls",
+        "tflint",
       },
       auto_update = false, -- set true if you want it to also keep tools up to date on startup
       run_on_start = true,

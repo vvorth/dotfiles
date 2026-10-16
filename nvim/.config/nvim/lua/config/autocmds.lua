@@ -21,7 +21,7 @@ vim.api.nvim_create_autocmd("BufReadPost", {
 })
 
 vim.api.nvim_create_autocmd("FileType", {
-  pattern = { "lua", "javascript", "typescript", "yaml", "json", "html", "css" },
+  pattern = { "lua", "javascript", "typescript", "yaml", "json", "html", "css", "hcl", "terraform", "terraform-vars" },
   callback = function()
     vim.bo.shiftwidth = 2
     vim.bo.tabstop = 2

@@ -86,7 +86,10 @@ return {
           },
         },
       })
-      vim.lsp.enable({ "yamlls", "bashls", "basedpyright", "lua_ls" })
+      -- terraformls: terraform + terraform-vars; completion for providers
+      -- outside its bundled schemas needs `terraform init` in the module.
+      -- tflint: lint diagnostics, terraform only.
+      vim.lsp.enable({ "yamlls", "bashls", "basedpyright", "lua_ls", "terraformls", "tflint" })
     end,
   },
 }

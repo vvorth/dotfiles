@@ -11,10 +11,11 @@ return {
   config = function()
     -- install() skips parsers that are already there, so this is cheap on a
     -- normal start. markdown_inline is required by render-markdown; toml,
-    -- json and javascript match the filetypes conform formats.
+    -- json and javascript match the filetypes conform formats. terraform
+    -- (also used for terraform-vars) is a dialect of, and requires, hcl.
     require("nvim-treesitter").install({
       "python", "lua", "bash", "vim", "vimdoc", "regex", "latex", "html", "yaml",
-      "markdown", "markdown_inline", "toml", "json", "javascript",
+      "markdown", "markdown_inline", "toml", "json", "javascript", "hcl", "terraform",
     })
 
     -- Enable highlighting + treesitter-based indent per-buffer.
