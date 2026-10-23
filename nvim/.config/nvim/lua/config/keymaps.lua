@@ -13,14 +13,14 @@ return {
   { "<leader>w", group = "Window", icon = { icon = "󰉐 " } },
   { "<leader>u", group = "UI", icon = { icon = "󰔃 " } },
   { "<leader>q", group = "Quit/Session", icon = { icon = "󰗼 " } },
+  -- markdown-only mappings live in plugins/render-markdown.lua (lazy `keys`
+  -- with ft = "markdown"); only the group label is registered here
+  { "<leader>m", group = "Markdown", icon = { icon = " " } },
   -- { "<leader>e", desc = "Toggle File Explorer", icon = { icon = "󰙅 " } },
   { "<leader>e", desc = "File Explorer", icon = { icon = "󰙅 " } },
   { "<leader>l", "<cmd>Lazy<cr>", desc = "Lazy", icon = { icon = "󰒲 " } },
 
   -- { "<leader>?", "<cmd><cr>", desc = "Which-Key all", icon = { icon = "? " } },
-
-  -- Code
-  { "<leader>cr", "<cmd>RenderMarkdown toggle<cr>", desc = "Toggle Markdown Render", icon = { icon = " " } },
 
   -- File
   { "<leader>fs", "<cmd>write<cr>", desc = "Save File", icon = { icon = "󰆓 " } },
