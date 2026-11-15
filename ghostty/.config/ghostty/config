@@ -3,7 +3,13 @@
 confirm-close-surface = always
 theme = Selenized Dark
 font-family = CaskaydiaCove Nerd Font Mono
-font-size = 15
+font-size = 14
+
+# font-thicken = true
+adjust-cell-height = 5%
+# window-padding-x = 8
+# window-padding-y = 6
+
 mouse-hide-while-typing = true
 window-decoration = true
 macos-option-as-alt = true
