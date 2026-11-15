@@ -252,6 +252,10 @@ noice (cmdline popup), which-key, treesitter (+ native fold via `foldexpr`), con
 configures all of snacks: scroll, picker, explorer, notifier, indent, image, terminal),
 lualine, mini.icons (mocking nvim-web-devicons), render-markdown + markdown-table-wrap,
 ultimate-autopair, vim-sleuth, vim-tmux-navigator, tf-docs (Terraform registry docs).
+**[`nvim-cheatsheet.md`](nvim-cheatsheet.md) (repo root) is the human index**: one table of
+what each plugin is for, every leader and non-leader mapping, explorer/picker keys, and the
+markdown workflow. Keep it in step when a mapping changes; inside nvim `<leader>fk` (snacks
+keymap picker) is the live equivalent.
 
 Not active, despite files existing: `wilder.lua` is `enabled = false` (kept in favor of native
 `wildmenu`/`wildoptions=pum` in `options.lua`); `nvim-tree.lua` is a `return {}` stub with the
@@ -273,6 +277,32 @@ mason: `init.lua` puts mason's `bin` first on PATH, so it would shadow the user'
 `vim.ui.open`, so the SSH override above applies; tf.nvim runs its own `xdg-open`/`open`, and
 only resolves namespaces from a built-in table, with no version. tf.nvim's extras, a state
 browser and `terraform validate`, were left out.
+
+Markdown: `render-markdown` renders in Normal mode only (cursor line and Insert mode stay
+raw), so it never blocks editing. `markdown-table-wrap` is a different animal: its *default*
+`auto_preview = true` replaces any markdown buffer containing a pipe table with a protected,
+unlisted `markdown-table-wrap://reader/...` buffer on open, where `dd`/`x`/`p` are refused
+(`y`/`d` are reserved for its `yic`/`dic` cell operators) until `q`/`e`/`i` returns to the
+source. That was the "can't edit markdown" complaint; it is now `auto_preview = false` with
+the views and table commands under `<leader>m…` (lazy `keys` with `ft = "markdown"`, so the
+which-key `+Markdown` group only appears in markdown buffers — verified). Its spec is pinned
+`version = "^1"` as its README asks; lazy.nvim sources `plugin/` (which calls a bare
+`setup()`) before our `opts` setup, and the second `setup()` replaces the config, so the
+default never gets a chance to open a Reader. `:MarkdownTableFormat` rewrites the delimiter
+row with explicit `:---` alignment markers.
+
+Explorer + tmux navigation: snacks draws the explorer's list and filter prompt as
+**floating windows** (`win_gettype() == "popup"`) over a real `snacks_layout_box` split.
+From a float, `wincmd h` does not fail at the screen edge, it jumps to the editor window, so
+vim-tmux-navigator (`wincmd` then "did winnr change?") thought it moved inside vim and never
+called tmux: `<C-h>` and `<C-l>` from the explorer both landed in the editor, and `<C-j>`/
+`<C-k>` were snacks' own `list_down`/`list_up`. Reproduced on nvim 0.12.6 + tmux 3.4 by
+driving a `tmux -L test` session with `send-keys` and reading state back over
+`nvim --server … --remote-expr`. Fix lives in `snacks-scroll.lua` as explorer `actions`
+(`nav_left` …): evaluate `winnr(dir)` from the layout-box split via `nvim_win_call`, go there
+if it names another window, else `tmux select-pane -<dir>` directly. `<C-t>` in the list is
+also overridden (file → new tab, closed folder → expand) and `Esc`/`<C-c>` in the prompt
+close the explorer; the stock `<c-t>`=terminal binding is gone.
 
 Load-order things that are easy to break:
 - **`config/keymaps.lua` is a which-key spec, not code**: it `return`s a table that
@@ -373,6 +403,14 @@ assuming either way before editing `Brewfile`.
   `config/nvim` symlinked to `nvim/.config/nvim`, then `nvim --headless "+Lazy! sync" +qa`.
   Test tmux on its own socket (`tmux -L test -f tmux/.tmux.conf new -d`), and stow into a fake
   `HOME=... ./install.sh`.
+- Driving a real nvim TUI from a script, when a change can only be judged by what a keypress
+  does (float windows, which-key popups, tmux hand-offs): start nvim inside `tmux -L test`
+  with `--listen <sock>`, `tmux send-keys` the keys, and read state back with
+  `nvim --server <sock> --remote-expr 'json_encode([...])'`; `tmux capture-pane -p` for what
+  is on screen. Two traps: `--remote-expr` hangs while nvim sits on a "Press ENTER" prompt
+  (with `cmdheight=0`, every async error, e.g. treesitter's parser downloads getting 403
+  here, raises one), and sending `Enter` to drain those prompts is not safe while the
+  explorer has focus, since `Enter` there is "open the entry".
 - Sandbox-only nvim quirk, not a config bug: lazy.nvim's rtp reset uses `<prefix>/lib64/nvim`
   whenever `/usr/lib64` exists, and here it does but holds no `nvim/`, so nvim's bundled
   parsers (`/usr/lib/nvim/parser`) vanish and the stock `ftplugin/lua.lua` errors with
