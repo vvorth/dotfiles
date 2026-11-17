@@ -104,6 +104,7 @@ return {
     image = { enabled = true, math = { enabled = false } },
     -- disabled
     input = { enabled = false },
+    -- terminal = { enables = false }
   },
   keys = {
     { "<leader>ug", function() Snacks.toggle.indent():toggle() end, desc = "Toggle Indent Guides" },
